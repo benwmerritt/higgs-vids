@@ -10,9 +10,10 @@ downloads/*.wav
 downloads/frames/
 
 # ─── Higgsfield autopilot artefacts ───────────────────────
-# Auth state — sensitive cookies, never commit.
+# Auth state — sensitive cookies and full Chrome profile, never commit.
 skill/**/auth/storage_state.json
 skill/**/auth/last-login*
+skill/**/auth/user-data/
 # Per-run outputs (assets, intermediate files, final.mp4).
 runs/
 skill/**/runs/

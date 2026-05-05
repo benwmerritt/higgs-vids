@@ -15,13 +15,16 @@ bash skill/higgsfield-autopilot/scripts/00-bootstrap.sh
 python skill/higgsfield-autopilot/scripts/01-login.py
 
 # 4. Tell your agent to run the autopilot
-#    Claude Code:
-claude "Use the higgsfield-autopilot skill to execute skill/higgsfield-autopilot/briefs/example-retro-futuristic.md"
-#    Codex:
-codex --context skill/higgsfield-autopilot/SKILL.md "Run the autopilot on briefs/example-retro-futuristic.md"
-#    OpenCode:
-opencode "Use the higgsfield-autopilot skill on briefs/example-retro-futuristic.md"
+#    In Claude Code, the simplest path is the slash command:
+#       /higgsfield-autopilot skill/higgsfield-autopilot/briefs/example-retro-futuristic.md
+#
+#    Or natural language in any of the three agents:
+#       Claude Code: claude "Run the higgsfield-autopilot on briefs/example-retro-futuristic.md"
+#       Codex:       codex --context skill/higgsfield-autopilot/SKILL.md "Run on briefs/example-retro-futuristic.md"
+#       OpenCode:    opencode "Run higgsfield-autopilot on briefs/example-retro-futuristic.md"
 ```
+
+The agent expands the brief, then invokes `scripts/run-autopilot.py` once — no per-step orchestration from you.
 
 After ~10–20 minutes (depending on Higgsfield queue), `runs/<date>/final.mp4` exists.
 

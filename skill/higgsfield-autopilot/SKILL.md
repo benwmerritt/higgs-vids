@@ -37,64 +37,64 @@ python skill/higgsfield-autopilot/scripts/01-login.py
 
 ## The workflow (agent execution order)
 
-When invoked with a brief, follow these steps **in order**. Each step is a separate background shell so the user can monitor progress.
+**Default path: use the orchestrator.** `scripts/run-autopilot.py` handles steps 3–7 in one invocation. Your job (steps 1–2) is the creative work; the orchestrator runs everything mechanical.
 
 ### Step 1 — Read the brief
-Brief is either a path (e.g. `briefs/example-retro-futuristic.md`) or an inline string. Briefs are conversational, often one sentence. Don't ask the user to expand the brief — that's your job in step 2.
+Brief is either a path (e.g. `briefs/example-retro-futuristic.md`) or an inline string. Briefs are conversational, often one sentence. Don't ask the user to expand it — that's your job in step 2.
 
-### Step 2 — Expand brief into shot list
-Load `references/brief-expansion-rules.md`. Produce a JSON shot list:
+### Step 2 — Expand brief into shotlist.json
+Load `references/brief-expansion-rules.md` and `references/soul-cinema-prompting.md`. Produce:
 
 ```json
 {
-  "title": "Retro-futuristic editorial campaign",
+  "title": "...",
+  "brief_original": "<verbatim user brief>",
   "aspect": "9:16",
   "shot_count": 5,
   "shots": [
-    {"id": 1, "purpose": "establish", "prompt": "<Soul Cinema prompt per references/soul-cinema-prompting.md>"},
+    {"id": 1, "purpose": "establish", "prompt": "<Soul Cinema prompt>"},
     ...
   ]
 }
 ```
 
-Save to `runs/<YYYY-MM-DD-HHMM>/shotlist.json`.
+Pick a run dir: `runs/<YYYY-MM-DD-HHMM>/` (under repo root). Write the shotlist there as `shotlist.json`.
 
-### Step 3 — Verify session
-Run `scripts/02-open-soul-cinema.py` once. Exits non-zero with `AUTH_EXPIRED` if storage state is stale — in that case, tell the user to re-run `scripts/01-login.py`.
-
-### Step 4 — Generate assets
-For each shot in the shot list:
-
+### Step 3 — Cost preview (dry-run)
 ```bash
-python scripts/03-generate-asset.py \
-  --prompt "<shot.prompt>" \
-  --aspect 9:16 --batch 4 --boost on \
-  --shot-id <shot.id> \
-  --run-dir runs/<YYYY-MM-DD-HHMM>
+python skill/higgsfield-autopilot/scripts/run-autopilot.py \
+    --shotlist <run-dir>/shotlist.json \
+    --run-dir <run-dir> \
+    --dry-run
 ```
 
-Run multiple shots **in parallel background shells** (Higgsfield queues them server-side). Capture asset IDs to `runs/<...>/shot-<NN>/asset-ids.json`.
+Report estimated credits. If > 400, **ask the user before continuing**.
 
-**Cost guard:** Before kicking off, run with `--dry-run` first to see estimated credit consumption. If > 400 credits, confirm with the user.
-
-### Step 5 — Download assets
+### Step 4 — Real run
 ```bash
-python scripts/04-download-assets.py --run-dir runs/<YYYY-MM-DD-HHMM>
+python skill/higgsfield-autopilot/scripts/run-autopilot.py \
+    --shotlist <run-dir>/shotlist.json \
+    --run-dir <run-dir> \
+    --auto-pick \
+    --crossfade-ms 250
 ```
 
-Pulls the 4 batch outputs per shot into `runs/<...>/shot-<NN>/take-{1..4}.mp4`.
+The orchestrator:
+- Verifies session via `02-open-soul-cinema.py`.
+- Launches `03-generate-asset.py` per shot, capped at 3 parallel.
+- Runs `04-download-assets.py`.
+- With `--auto-pick`: defaults `take-best.mp4 → take-1.mp4`. Drop `--auto-pick` if you want to vision-inspect each take and create symlinks manually before assembly.
+- Runs `05-assemble-video.py` to produce `<run-dir>/final.mp4`.
 
-### Step 6 — Pick best take per shot
-Use vision capability to inspect `take-1.mp4` through `take-4.mp4` for each shot. Symlink the chosen one as `take-best.mp4`. If no vision available, default to `take-1` and tell the user to manually swap.
+### Step 5 — Report
+Tell the user:
+- Path to `<run-dir>/final.mp4`
+- Number of shots, total duration
+- Total credit cost
 
-### Step 7 — Assemble final video
-```bash
-python scripts/05-assemble-video.py --run-dir runs/<YYYY-MM-DD-HHMM>
-```
+## Manual mode (advanced)
 
-Concatenates the `take-best.mp4` files in shot-id order with crossfades. Output: `runs/<...>/final.mp4`.
-
-Report the path to the user with playback duration and total credit cost.
+If you need to inspect intermediate state, run the numbered scripts individually — see `references/workflow-architecture.md` for the per-script API. Useful for debugging selector breakage.
 
 ## Failure handling
 
