@@ -11,16 +11,10 @@ downloads/frames/
 
 # ─── Higgsfield autopilot artefacts ───────────────────────
 # Auth state — sensitive cookies and full Chrome profile, never commit.
-skill/**/auth/storage_state.json
-skill/**/auth/last-login*
-skill/**/auth/user-data/
+skill/**/auth/
 # Per-run outputs (assets, intermediate files, final.mp4).
 runs/
 skill/**/runs/
-# Playwright virtualenv created by 00-bootstrap.sh
-skill/**/.venv/
-# Playwright browser downloads cache (in case it lands locally)
-skill/**/.playwright/
 *.session
 
 # Anywhere in the tree, ignore large media binaries by default
