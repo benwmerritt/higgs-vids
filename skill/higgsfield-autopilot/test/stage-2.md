@@ -1,103 +1,98 @@
-# Stage 2 — Single-Shot Real Generation
+# Stage 2 — Single Shot Real Generation
 
-> **How to invoke this:**
-> - **Claude Code:** `/higgsfield-test 2`
-> - **Any other agent:** tell it: *"Read `skill/higgsfield-autopilot/test/stage-2.md` and execute it."*
+> **Invoke:** `/higgsfield-test 2` or *"Read `skill/higgsfield-autopilot/test/stage-2.md` and execute it."*
 
-**Cost: ~20–32 credits** (one Soul Cinema 9:16 batch of 4 generations). Do NOT run this stage unless you've already passed stage 1, and do NOT run it if you don't have credits to spare.
+**Cost: ~12 credits** (one Soul Cinematic still, 9:16). NO video step in stage 2 — that's stage 3. Verifies you can submit, wait, download, and log cost to JSON for one image.
 
-**Purpose:** Verify the full generation flow for a single shot — submit, poll, download takes, save to disk. Exercises every part of the production pipeline except multi-shot orchestration and final ffmpeg assembly.
+**Pre-condition:** stage 1 has passed in the same session and you have ≥12 credits.
 
-**Pre-condition:** Stage 1 has passed in this same browser session in the last hour. The model picker is known to work; we're not re-validating that.
+## Pre-conditions
 
----
+```bash
+BAL=$(higgs --json account status | jq -r '.credits')
+[ "$BAL" -lt 12 ] && { echo "Need ≥12 credits, have $BAL. Top up first."; exit 1; }
+```
 
-## Setup that should already be true
+If this fails, stop. Don't partially execute.
 
-Same as stage 1: Chrome on :9222, signed in, MCP tools visible.
+## Steps
 
-Additionally: `runs/<YYYY-MM-DD-HHMM>/shotlist.json` exists from a recent stage-1 run, OR you'll generate a fresh one.
+### 1. Read instructions (skim if recently read)
 
-## What to do
-
-### 1. Read the skill instructions
-
-`skill/higgsfield-autopilot/SKILL.md` and `skill/higgsfield-autopilot/references/playwright-mcp-playbook.md`. Skim if recently read.
+SKILL.md + cli-cheatsheet + cost-discipline.
 
 ### 2. Acquire a shotlist
 
-Either reuse the most recent `runs/*/shotlist.json` (sort by mtime) or create a fresh one for `briefs/example-retro-futuristic.md` per `brief-expansion-rules.md`. Save under `runs/<YYYY-MM-DD-HHMM>/shotlist.json`.
+Reuse the most recent `runs/*/shotlist.json` (sort by mtime). If none exists, generate one for `briefs/example-retro-futuristic.md` per `brief-expansion-rules.md`. Save under `runs/<NEW_RUN_ID>/shotlist.json`.
 
-### 3. Verify session
+### 3. Pick shot 1
 
-Same as stage-1 step 4. If logged out, stop.
+Pull `shots[0].still_prompt` from the shotlist. That's the prompt for this stage.
 
-### 4. Confirm Soul Cinema is selected
-
-If you did stage 1 in this same browser session within the last hour, the model is probably already set. Re-snapshot to confirm. If not Soul Cinema, switch (stage-1 step 5).
-
-### 5. Submit shot 1 — live cost confirmation
-
-- Fill prompt 1 from the shotlist via `browser_type`.
-- Set aspect 9:16, batch 4.
-- Read the cost preview via `browser_evaluate` (same JS as stage 1).
-- **Tell the user the cost** and **wait for explicit confirmation** before clicking Generate. Example phrasing:
-  > "About to spend ~24 credits on shot 1. Confirm to proceed?"
-- Only proceed after the user says yes.
-
-### 6. Click Generate, poll for completion
-
-- `browser_click` the Generate button.
-- Wait 30 seconds (`browser_wait_for(time=30)`).
-- Loop, max 20 iterations:
-  - `browser_evaluate("() => /generating|pending|queued/i.test(document.body.innerText)")` — true if still generating
-  - If false → break out; generations are done
-  - If true → wait another 30s
-- If 20 iterations pass without completion, screenshot, stop, ask the user.
-
-### 7. Extract asset URLs
-
-After completion, `browser_evaluate`:
-
-```js
-() => Array.from(document.querySelectorAll('video, img'))
-        .map(e => e.currentSrc || e.src)
-        .filter(u => u && u.startsWith('http'))
-```
-
-Filter for the 4 newest URLs (highest in the History grid, or compare against a baseline you snapshotted before submission).
-
-If results are `blob:` URLs only, wait 5s and retry. If still blob, fall back to `browser_network_requests()` and grep responses for `*.mp4` from `cdn.higgsfield.ai` or similar.
-
-### 8. Download the takes
-
-For each of the 4 URLs:
+### 4. Cost preflight + explicit confirmation
 
 ```bash
-mkdir -p runs/<date>/shot-01
-curl -sL "$URL" -o runs/<date>/shot-01/take-K.mp4
+COST=$(higgs --json generate cost soul_cinematic --prompt "$STILL_PROMPT" | jq -r '.cost')
+echo "About to spend $COST credits on a single Soul Cinematic still."
 ```
 
-Verify each file is non-zero bytes (`stat -f %z` on macOS or `wc -c`).
+Tell the user the cost and **wait for explicit confirmation** before submitting:
+> "About to spend $COST credits. Confirm to proceed?"
 
-### 9. Write the report
+Only proceed after the user says yes.
 
-`runs/<date>/stage-2-report.md` with these sections:
+### 5. Submit + wait + download
 
-1. **Submission** — prompt sent, aspect, batch, boost setting, click outcome
-2. **Polling** — total wait time, number of polls, any in-progress / failed states observed
-3. **Asset extraction** — what `browser_evaluate` returned, how many URLs were valid HTTPS, fallback used (if any)
-4. **Download** — file paths, sizes in bytes, durations (use `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 <file>`)
-5. **Total credit spend** — read the live credit balance before vs after if possible (a single `browser_evaluate` of the credit display)
-6. **Surprises + recommended SKILL.md changes** — same format as stage-1
+```bash
+mkdir -p runs/$RUN_ID/shot-01
+echo "$STILL_PROMPT" > runs/$RUN_ID/shot-01/prompt.txt
 
-Then in chat: `Stage-2 report: <path>`.
+RESULT=$(higgs --json generate create soul_cinematic \
+  --prompt "$STILL_PROMPT" \
+  --aspect_ratio 9:16 \
+  --wait --wait-timeout 5m)
+
+JOB_ID=$(echo "$RESULT" | jq -r '.id')
+URL=$(echo "$RESULT" | jq -r '.result_url // .url // .urls[0]')
+
+echo "$JOB_ID" > runs/$RUN_ID/shot-01/job-id.txt
+echo "$URL" > runs/$RUN_ID/shot-01/result-url.txt
+curl -sL "$URL" -o runs/$RUN_ID/shot-01/still.png
+ls -la runs/$RUN_ID/shot-01/still.png
+```
+
+### 6. Verify the file
+
+```bash
+SIZE=$(stat -f%z runs/$RUN_ID/shot-01/still.png 2>/dev/null || stat -c%s runs/$RUN_ID/shot-01/still.png)
+[ "$SIZE" -lt 10000 ] && echo "WARNING: still.png is suspiciously small ($SIZE bytes)"
+```
+
+### 7. Read live balance + compute actual spend
+
+```bash
+BAL_AFTER=$(higgs --json account status | jq -r '.credits')
+ACTUAL=$((BAL - BAL_AFTER))
+echo "Balance: $BAL → $BAL_AFTER (delta: $ACTUAL credits)"
+```
+
+### 8. Write the report
+
+`runs/<RUN_ID>/stage-2-report.md` with:
+
+1. **Submission** — prompt, aspect, wait time, click outcome
+2. **Result** — job ID, result URL, local file path, file size in bytes
+3. **Cost** — preflight estimate vs. actual delta vs. expected (12)
+4. **Discrepancies** — preflight estimate vs. actual delta — diff if any
+5. **Surprises + recommended changes** — anything off-spec
+
+Then: `Stage-2 report: <path>`.
 
 ## Constraints
 
-- **One shot only.** Do not generate shots 2–5.
-- **Wait for explicit user confirmation** before clicking Generate.
-- **Hard cap: 30 minutes total wall-clock.** If you're past 30 min, stop and report whatever state you got to.
-- **Do not commit. Do not edit skill/. Do not install anything.**
+- **One shot only.** No video generation. No multi-shot.
+- **Wait for explicit user confirmation** before clicking submit.
+- **Hard cap: 10 minutes total wall-clock.** If past, stop and report what state we got to.
+- **Don't commit. Don't edit `skill/`.** Don't install anything.
 
 Begin.

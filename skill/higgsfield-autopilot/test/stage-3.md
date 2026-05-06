@@ -1,89 +1,113 @@
-# Stage 3 — Full Campaign Smoke Test
+# Stage 3 — Full Reel Smoke Test
 
-> **How to invoke this:**
-> - **Claude Code:** `/higgsfield-test 3`
-> - **Any other agent:** tell it: *"Read `skill/higgsfield-autopilot/test/stage-3.md` and execute it."*
+> **Invoke:** `/higgsfield-test 3` or *"Read `skill/higgsfield-autopilot/test/stage-3.md` and execute it."*
 
-**Cost: ~100–160 credits** (5 shots × 4 batches × ~5–8 credits/gen). This is the real deal. Do NOT run this until both stage 1 and stage 2 have passed in this same browser session.
+**Cost: ~1,000 credits (cheap tier) to ~12,500 credits (mid tier).** Don't run until stage 1 + 2 have passed in the same session AND you have the credits.
 
-**Purpose:** End-to-end smoke test — execute the full SKILL.md workflow on the example brief, producing `runs/<date>/final.mp4`. This is the production path; if it works, the skill is ready for real use.
+**Purpose:** End-to-end smoke — execute the full `product-reel.md` pattern on `example-retro-futuristic.md` and produce `runs/<date>/deliverables/reel-final.mp4`. This is the production path; if it works, the toolkit ships.
 
----
+## Pre-conditions
 
-## Setup that should already be true
-
-Same as stages 1 and 2: Chrome on :9222, signed in, MCP tools visible.
-
-Plus: stages 1 and 2 have both passed recently in this browser session, AND ffmpeg is on PATH (`which ffmpeg`).
-
-## What to do
-
-### 1. Read the full skill
-
-`skill/higgsfield-autopilot/SKILL.md` end-to-end. The 10 steps in the workflow are exactly what you'll execute.
-
-### 2. Read the playbook
-
-`skill/higgsfield-autopilot/references/playwright-mcp-playbook.md` — pay attention to the polling pattern and asset-download recipe. For 5 shots you'll do this 5 times (or in parallel via tabs — see SKILL.md step 6).
-
-### 3. Pre-flight
-
-- Verify session (stage-1 step 4 logic).
-- Confirm Soul Cinema is selected (stage-1 step 5 logic).
-- Read the shotlist's brief and produce `runs/<YYYY-MM-DD-HHMM>/shotlist.json` if not already present.
-- **Sum the cost preview across all 5 shots** (per-generation × 4 × 5). **If > 200 credits, ask user to confirm the total before proceeding.** Otherwise just report the estimate and continue.
-
-### 4. Generate all 5 shots
-
-Choose a strategy based on agent + browser comfort:
-
-**Sequential (safest, slowest):** for each shot in order, fill prompt → click Generate → poll → extract URLs → download → next shot.
-
-**Parallel via tabs (faster, more complex):** open up to 5 tabs via `browser_tabs(action="new")`, submit one shot per tab, then round-robin poll. Only use if you're confident in tab management.
-
-Either way: download each shot's 4 takes to `runs/<date>/shot-<NN>/take-{1..4}.mp4` as soon as that shot completes (don't batch downloads — risk losing them if a later shot fails).
-
-### 5. Pick best take per shot
-
-For each shot, inspect the 4 takes (use vision capability if available, or sample frames with `ffmpeg -i take-K.mp4 -vf "select=eq(n\,0)" -vframes 1 /tmp/preview-K.png` and look at them).
-
-Symlink the chosen take:
 ```bash
-ln -sf take-2.mp4 runs/<date>/shot-NN/take-best.mp4
+BAL=$(higgs --json account status | jq -r '.credits')
+[ "$BAL" -lt 1000 ] && { echo "Need ≥1000 credits for cheap tier, have $BAL."; exit 1; }
+which ffmpeg >/dev/null || { echo "ffmpeg required for assembly. Install: brew install ffmpeg"; exit 1; }
 ```
 
-If vision-pick isn't feasible, default to `take-1` for every shot and note this in the report.
+Stage 1 + 2 reports exist for recent runs. (Not strictly enforceable; just don't blow money on a setup that hasn't been validated.)
 
-### 6. Assemble the final video
+## Steps
+
+### 1. Read instructions
+
+SKILL.md, all references, `patterns/product-reel.md`, `briefs/example-retro-futuristic.md`.
+
+### 2. Pre-flight
+
+Verify auth + workspace. If active workspace isn't what the user wants charged, stop.
+
+### 3. Expand brief into shotlist (5 shots, 9:16)
+
+Save to `runs/<RUN_ID>/shotlist.json`.
+
+### 4. Cost preflight (sum across all shots)
+
+For mid tier (default):
+```bash
+TOTAL=0
+for shot in shotlist.shots; do
+  STILL=$(higgs --json generate cost soul_cinematic --prompt "$STILL_PROMPT" | jq -r '.cost')
+  VIDEO=$(higgs --json generate cost cinematic_studio_3_0 --prompt "$MOTION_PROMPT" | jq -r '.cost')
+  TOTAL=$((TOTAL + STILL + VIDEO))
+done
+echo "Mid-tier total: $TOTAL"
+```
+
+Cost-discipline thresholds apply: this is almost certainly >1000 credits, so itemise the breakdown and ask explicit confirmation.
+
+### 5. If estimate exceeds balance — propose cheap tier
+
+Recompute with `kling2_6` instead of `cinematic_studio_3_0` for video. Tell the user:
+> "Mid-tier estimate $X exceeds balance $BAL. Cheap-tier alternative: $Y credits using kling2_6 instead of cinematic_studio_3_0. Proceed with cheap tier?"
+
+Only continue with explicit confirmation.
+
+### 6. Execute pattern (steps 4-7 of product-reel.md)
+
+Per shot:
+- Generate still (`soul_cinematic --prompt ... --aspect_ratio 9:16 --wait`)
+- Save URL, download to `shot-NN/still.png`
+- Animate (`<video_model> --image $STILL_JOB_ID --prompt ... --duration 5 --wait`)
+- Save URL, download to `shot-NN/take-1.mp4`
+- Symlink `take-best.mp4 → take-1.mp4`
+
+If a shot fails: log it, continue with the next. Don't kill the run.
+
+Hard cap: 60 minutes total wall-clock.
+
+### 7. Assemble + bundle
 
 ```bash
 python skill/higgsfield-autopilot/scripts/assemble-video.py \
-    --run-dir runs/<date> \
+    --run-dir runs/$RUN_ID \
     --crossfade-ms 250 \
     --force
+
+mkdir -p runs/$RUN_ID/deliverables
+cp runs/$RUN_ID/final.mp4 runs/$RUN_ID/deliverables/reel-final.mp4
+ffmpeg -y -i runs/$RUN_ID/deliverables/reel-final.mp4 -vframes 1 runs/$RUN_ID/deliverables/poster.png
 ```
 
-Verify `runs/<date>/final.mp4` exists and is playable (`ffprobe` returns a non-zero duration).
+Write `runs/$RUN_ID/deliverables/README.md` with: brief title, pattern, total spend, runtime, models used, any failed shots.
 
-### 7. Write the report
+### 8. Verify the final
 
-`runs/<date>/stage-3-report.md` with these sections:
+```bash
+ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \
+  runs/$RUN_ID/deliverables/reel-final.mp4
+```
 
-1. **Generation summary** — table of all 5 shots: prompt summary, time-to-complete, success/fail, take chosen
-2. **Total credit spend** — actual credits used (live balance before vs after)
-3. **Final video** — path, duration, dimensions (`ffprobe`), file size
-4. **Failures + recoveries** — anything that needed a retry, and how the agent recovered
-5. **Tool call count** — rough breakdown by tool, plus number of bash subprocess calls
-6. **Recommended changes** — concrete diffs to SKILL.md / playbook / scripts based on what you learned
-7. **Open questions** — things the test couldn't resolve (e.g. audio support, Soul ID, headless mode, credit-cost-per-model accuracy)
+Should be ~25s for 5 × 5s shots. If wildly different, something's off.
 
-Then in chat: `Stage-3 report: <path>. Final video: <path>.`
+### 9. Write the stage report
+
+`runs/<RUN_ID>/stage-3-report.md`:
+
+1. **Generation summary** — table per shot: prompt summary, time, success/fail, video model used, take chosen
+2. **Total credit spend** — actual delta from `account status` before/after
+3. **Final video** — path, duration, dimensions, file size
+4. **Failures + recoveries** — what needed retry and how
+5. **Tool call count** — rough breakdown of `higgs` invocations + bash subprocess calls
+6. **Recommended changes** — concrete diffs to SKILL.md, patterns, references
+7. **Open questions** — what we couldn't validate (audio, longer videos, Soul ID, etc.)
+
+Then: `Stage-3 report: <path>. Final video: <path>.`
 
 ## Constraints
 
-- **Confirm total cost before starting** if estimate exceeds 200 credits.
-- **Hard cap: 60 minutes total wall-clock.** If past 60 min, stop and report whatever state you reached. Do not let one stuck shot block the whole run — abort that shot and continue with the others.
-- **If a shot fails mid-generation, mark it failed in the report and continue.** Better a 4-shot final than no final at all.
-- **Do not commit. Do not edit skill/ files** (you can edit your run-dir freely). **Do not install anything.**
+- **Confirm total cost before starting** if estimate exceeds 1000 credits (almost certain).
+- **60-minute wall-clock cap.** If past, stop and report whatever state we reached.
+- **A failed shot doesn't kill the run** — better a 4-shot final than no final.
+- **Don't commit. Don't edit `skill/` files** (you can edit your run dir freely). Don't install anything.
 
 Begin.

@@ -1,213 +1,189 @@
 ---
 name: higgsfield-autopilot
-description: Drive Higgsfield (Soul Cinema model) end-to-end via the Playwright MCP server to turn a one-line creative brief into a finished editorial video. Use this skill when the user wants to generate a Higgsfield campaign autonomously, automate Soul Cinema, batch-generate Higgsfield assets, or build editorial reels with AI. Requires a one-time browser login (handled by launching real Chrome via scripts/launch-browser.sh and signing in by hand). Afterward the agent uses Playwright MCP tools (browser_navigate, browser_snapshot, browser_click, browser_type, browser_evaluate) to drive the live browser session — no per-step Python scripts.
+description: Run a video production studio out of the Higgsfield CLI. Use this skill when the user wants to make video reels, social posts, brand stills, e-commerce listings, or character-driven campaigns via Higgsfield AI. The agent reads a one-line brief, picks a pattern from patterns/, and executes via the higgs CLI — including cost preflight, workspace billing, asset download, ffmpeg assembly, and a delivered bundle. No browser automation, no Playwright, no MCP — just the official higgs CLI.
 ---
 
 # Higgsfield Autopilot
 
-Turn a single-line creative brief into a finished 9:16 editorial video by driving Higgsfield's Soul Cinema model through the Playwright MCP server.
+You are an agent operating inside a video production toolkit. The human says one sentence; you do the rest. Your job is to turn briefs into delivered video/image bundles using the Higgsfield CLI.
 
-## When to use this skill
+## Your tools
 
-Trigger when the user says any of:
-- "make me a Higgsfield campaign about …"
-- "generate a Soul Cinema reel for …"
-- "automate Higgsfield"
-- "run the autopilot on this brief"
-- Or hands you a brief markdown file in `briefs/`.
+- **`higgs` CLI** — the official Higgsfield CLI (`@higgsfield/cli`, MIT-licensed wrapper, MIT 2026-05-04 release). Authoritative API to all 35+ Higgsfield models, uploads, jobs, workspaces, account.
+- **Bash** — to invoke `higgs`, parse JSON output (with `jq`), run `curl` for downloads, run `ffmpeg` for assembly.
+- **`scripts/assemble-video.py`** — one helper for ffmpeg concat with crossfades. Call when assembling final videos from per-shot takes.
+- **Markdown reading** — your patterns, references, and briefs live as `.md` files in this skill.
 
-If the user only wants prompt advice (no automation), defer to `docs/skills/skill-higgsfield-shot-designer.md` instead.
+You do **not** need: Playwright, MCP browser tools, a browser, or any login flow beyond `higgs auth login` (one-time per machine). All of that was the v2 architecture; v3 deletes it.
 
-## Architecture (read this first)
+## Reading order (do this first)
 
-```
-You (the agent)
-   │
-   │   tool calls (browser_navigate, browser_snapshot, browser_click, ...)
-   ▼
-Playwright MCP server  ──attach via CDP──▶  Real Chrome (already logged in)
-                                                │
-                                                ▼
-                                          higgsfield.ai/canvas
-```
+When invoked, read these files in order:
 
-There is **no Python orchestration layer between you and the browser**. You read the page via `browser_snapshot()`, decide what to click, call `browser_click()`. When Higgsfield changes their UI, re-snapshot and adapt — there are no selector files to patch.
+1. `references/cli-cheatsheet.md` — what each `higgs` command does, when to use it
+2. `references/cost-discipline.md` — the four-step ritual for spending real money
+3. `references/model-selection-guide.md` — decision tree for picking the right model
+4. `references/output-management.md` — run dir layout, deliverables, resumption
+5. `patterns/README.md` — pattern decision tree
+6. The specific `patterns/<name>.md` you'll execute
 
-The only Python in this skill is `scripts/assemble-video.py` (ffmpeg wrapper), which the agent shells out to once at the end.
+Then read the brief and execute.
 
-## Prerequisites
+## The 8-step workflow
 
-The user must have done these once per machine. Check at the start of every run:
+For any user request to make video/image content:
 
-| Requirement | Verify with | Install command |
-|---|---|---|
-| **Real Google Chrome** (not Playwright's bundled Chromium — Higgsfield blocks it) | `ls "/Applications/Google Chrome.app"` | `brew install --cask google-chrome` |
-| **ffmpeg** | `which ffmpeg` | `brew install ffmpeg` |
-| **Playwright MCP server registered with `--cdp-endpoint`** | `claude mcp list \| grep -i playwright` AND verify the registration command includes `--cdp-endpoint=http://127.0.0.1:9222` | `claude mcp add higgsfield-browser npx '@playwright/mcp@latest' -- --cdp-endpoint=http://127.0.0.1:9222` (NOTE: a Playwright MCP without `--cdp-endpoint` will spawn its own Chromium, which Higgsfield blocks. Don't reuse a default Playwright MCP — register this one separately) |
-| **Higgsfield account** with credits | Visible in browser after login | Sign up at higgsfield.ai |
+### 1. Read the brief
 
-If any is missing, stop and tell the user what to install. Do not try to install dependencies for them.
+The user supplies either:
+- A path to a markdown file in `briefs/` (or anywhere)
+- An inline natural-language ask
+- Nothing (use `briefs/example-retro-futuristic.md` as default)
 
-## One-time setup (human action)
+Save a copy of the brief to `runs/<RUN_ID>/brief.md` so the run is self-contained.
 
-Per session, the user runs:
+### 2. Pick a pattern
+
+Apply `patterns/README.md` decision tree. If the brief explicitly names a pattern (`> **Pattern:** product-reel`), use that. Otherwise infer from content. Default: `product-reel`.
+
+Save the chosen pattern name to `runs/<RUN_ID>/pattern.txt`.
+
+### 3. Pre-flight (auth + workspace + balance)
 
 ```bash
-bash skill/higgsfield-autopilot/scripts/launch-browser.sh --bg
+# Auth — should be set from prior `higgs auth login`. If not, stop and tell user.
+higgs --json account status > /tmp/acc.json || { echo "Not authenticated. Run: higgs auth login"; exit 1; }
+PLAN=$(jq -r '.plan' /tmp/acc.json)
+BALANCE=$(jq -r '.credits' /tmp/acc.json)
+
+# Workspace — confirm the active billing context
+WS=$(higgs --json workspace status | jq -r '.name // "Private"')
+echo "Plan: $PLAN | Workspace: $WS | Balance: $BALANCE credits"
 ```
 
-This opens a real Chrome window at higgsfield.ai/canvas, with `--remote-debugging-port=9222` enabled, against the persistent profile at `skill/higgsfield-autopilot/auth/user-data/`. The window stays open. The Playwright MCP server attaches to it via CDP — same window, same profile, same login across all your tool calls.
+If active workspace doesn't match the brief's apparent client, **stop** and ask the user to switch (`higgs workspace set <id>`). Per `cost-discipline.md`.
 
-**First-ever run**: the user signs in to higgsfield.ai in that window. Subsequent runs reuse the saved login.
+### 4. Expand brief into shotlist
 
-## The workflow
-
-Execute these steps in order. Each step lists the MCP tool calls you should make. Load `references/playwright-mcp-playbook.md` once at the start of step 3 — that's your tool reference.
-
-### Step 1 — Read the brief
-Brief is either a path (e.g. `skill/higgsfield-autopilot/briefs/example-retro-futuristic.md`) or an inline string. Briefs are conversational, often one sentence, in any language. **Don't ask the user to expand it — that's your job in step 2.**
-
-### Step 2 — Expand brief into shotlist.json
-Load `references/brief-expansion-rules.md` and `references/soul-cinema-prompting.md`. Produce:
+Per `references/brief-expansion-rules.md`. Output structured JSON:
 
 ```json
 {
   "title": "...",
-  "brief_original": "<verbatim user brief>",
-  "language": "<detected language>",
+  "brief_original": "...",
+  "language": "en",
   "aspect": "9:16",
   "shot_count": 5,
-  "shots": [
-    {"id": 1, "purpose": "establish", "prompt": "<Soul Cinema prompt, ENGLISH>"},
-    {"id": 2, "purpose": "subject_intro", "prompt": "..."},
-    ...
-  ]
+  "shots": [{"id": 1, "purpose": "establish", "still_prompt": "...", "motion_prompt": "..."}, ...]
 }
 ```
 
-Pick a run dir: `runs/<YYYY-MM-DD-HHMM>/` (under repo root, NOT under the skill dir). Create it. Save the shotlist as `runs/<...>/shotlist.json`.
+Save to `runs/<RUN_ID>/shotlist.json`. The pattern uses this as input.
 
-### Step 3 — Verify session
-1. `browser_navigate(url="https://higgsfield.ai/canvas")`
-2. `browser_snapshot()`
-3. Inspect the snapshot:
-   - **Logged in**: side-nav contains "Cinema Studio", "Assets", "Marketing Studio". Top-right shows credit count, NO "Login"/"Sign up" buttons.
-   - **Logged out**: "Login" / "Sign up" buttons visible.
-4. If logged out → STOP. Tell the user:
-   > "The browser session needs login. Open the Chrome window from `launch-browser.sh` and sign in to higgsfield.ai, then re-run."
+### 5. Cost preflight (per the four-step ritual)
 
-### Step 4 — Land in the Image generator with Soul Cinema selected
-The reel showed Soul Cinema is a model option inside the **Image** generator on `/canvas`. Default model is "Nano Banana Pro" — you need to switch.
+For each shot in the shotlist, run `higgs generate cost <model> --prompt "..."` for both the still and the video model your pattern uses. Sum to total. Compare to balance. Apply `cost-discipline.md` confirmation thresholds:
 
-1. From the snapshot at step 3, find and click the "Image" tab in the top nav. Re-snapshot if needed.
-2. Look for a "Soul Cinema is here" promo card on the left of the workspace. If present, `browser_click` it — that's a single-click switch to Soul Cinema.
-3. If the promo card isn't there, find the model pill at bottom-left of the prompt panel. It shows the current model (e.g. "Nano Banana Pro"). Click it. A dropdown appears. Click "Soul Cinema".
-4. Verify by `browser_evaluate("() => document.body.innerText.includes('Soul Cinema')")` and by re-snapshotting — the model pill should now read "Soul Cinema".
+- **<50 credits:** silent proceed
+- **50-200:** report estimate, proceed unless user objects
+- **200-1000:** ask explicit confirmation
+- **1000+:** itemise breakdown, ask
+- **>balance:** stop, report gap
 
-If both methods fail after one retry, take a screenshot, share with the user, ask them to click Soul Cinema manually then resume.
+### 6. Execute the pattern
 
-### Step 5 — Cost preview (no submission)
-For shot 1 only:
-1. Find the prompt textbox in the snapshot (placeholder is "Describe the scene you imagine"). `browser_type(text=<shot 1 prompt>)`.
-2. Set aspect ratio to 9:16: find the aspect picker (shows "3:4" or current aspect), click it, click "9:16".
-3. Set batch to 4: find the "1/4" or similar counter, click up arrows or directly set to 4.
-4. Read the credit-cost preview near the Generate button:
-   ```js
-   () => {
-     const m = document.body.innerText.match(/(\d+)\s+credits?/i);
-     return m ? parseInt(m[1], 10) : null;
-   }
-   ```
-   via `browser_evaluate`.
-5. Multiply by `shotlist.shot_count`. **If estimated total > 400 credits, stop and ask the user to confirm.**
+Follow the steps in your chosen `patterns/<name>.md` exactly. Each pattern is a recipe with explicit `higgs` calls. Don't improvise unless a step explicitly says you can.
 
-### Step 6 — Generate all shots
-Two strategies — pick based on shot count:
+For each generation:
+- Save `prompt.txt`, `job-id.txt`, `result-url.txt` per `output-management.md`
+- Download with `curl -sL "$URL" -o <path>`
+- Symlink the chosen take as `take-best.<ext>`
 
-**For ≤3 shots — sequential in one tab:**
-For each shot in shotlist:
-1. Clear prompt (`browser_type` with empty string, or select-all + delete).
-2. `browser_type` the shot's prompt.
-3. `browser_click` the Generate button.
-4. Wait for batch completion (see polling pattern in `references/playwright-mcp-playbook.md`).
-5. Move to next shot.
+If a shot fails, log the failure and continue. Better a partial deliverable than nothing.
 
-**For 4+ shots — multi-tab parallel:**
-1. Open N-1 additional tabs with `browser_tabs(action="new")`. In each, navigate to canvas, switch to Image+Soul Cinema (steps 3-4).
-2. Submit one shot per tab.
-3. Poll all tabs in round-robin via `browser_tabs(action="select", index=N)`.
+### 7. Assemble + bundle
 
-### Step 7 — Download assets
-For each shot's tab (or sequentially in the one-tab case):
-1. `browser_evaluate` the asset-extraction snippet (see playbook):
-   ```js
-   () => Array.from(document.querySelectorAll('video, img'))
-           .map(e => e.currentSrc || e.src)
-           .filter(u => u && u.startsWith('http'))
-   ```
-2. Diff against pre-submit baseline → 4 new URLs are this shot's takes.
-3. For each URL, shell out:
-   ```bash
-   mkdir -p runs/<date>/shot-NN
-   curl -sL "$URL" -o runs/<date>/shot-NN/take-K.mp4
-   ```
+For video patterns: `python skill/higgsfield-autopilot/scripts/assemble-video.py --run-dir runs/<RUN_ID> --crossfade-ms 250 --force` produces `runs/<RUN_ID>/final.mp4`.
 
-If `browser_evaluate` returns `blob:` URLs (not http), wait 5s and retry. If still blob, fall back to `browser_network_requests()` and grep for `cdn.higgsfield.ai` or similar media URLs.
+Build the deliverable bundle at `runs/<RUN_ID>/deliverables/`:
+- The final asset(s)
+- A poster frame for videos (`ffmpeg -i final.mp4 -vframes 1 deliverables/poster.png`)
+- A `README.md` handoff with: brief title, pattern, total cost, runtime, models used, caveats
 
-### Step 8 — Pick best take per shot (optional vision step)
-For each shot:
-1. Use your vision capability to inspect `take-1.mp4` through `take-4.mp4` (you can read mp4 frames if your environment supports it; otherwise sample with ffmpeg first).
-2. Symlink the chosen take as `take-best.mp4`:
-   ```bash
-   ln -sf take-2.mp4 runs/<date>/shot-NN/take-best.mp4
-   ```
+### 8. Cost ledger + report
 
-If vision-pick isn't feasible, default to `take-1` and tell the user to manually re-symlink any shots they want to swap.
+Update `runs/<RUN_ID>/cost-log.json` with shape from `cost-discipline.md`:
 
-### Step 9 — Assemble final video
-```bash
-python skill/higgsfield-autopilot/scripts/assemble-video.py \
-    --run-dir runs/<date> \
-    --crossfade-ms 250 \
-    --force
+```json
+{
+  "run_id": "...", "workspace": "...", "pattern": "...", "started_at": "...",
+  "preflight_total_estimate": N, "balance_before": M, "balance_after": K,
+  "actual_spend": M-K, "shots": [...]
+}
 ```
 
-This is the only Python the agent runs directly. ffmpeg concat with crossfades. Output: `runs/<date>/final.mp4`.
+Append a one-liner to `runs/cost-summary.json` (rolling cross-run ledger).
 
-### Step 10 — Report
 Tell the user:
-- Path to `runs/<date>/final.mp4`
-- Number of shots, total duration (`ffprobe`), aspect
-- Estimated credit spend (read from cost-preview log if you saved it)
-- Which takes were auto-picked vs vision-picked
+- Path to `runs/<RUN_ID>/deliverables/` and the headline file inside it
+- Total spend (from balance delta)
+- Number of shots, total duration if video (`ffprobe`)
+- Any failures or surprises
 
-## Failure handling
+## Slash commands the human will type at you
 
-| Symptom | Recovery |
+| Command | What you do |
 |---|---|
-| Snapshot shows Login button | User needs to re-sign-in in the launched Chrome window. Don't proceed. |
-| `browser_click` blocked by overlay | Snapshot, find dismiss button (×, Close, Skip, Maybe later), click it, retry. |
-| Soul Cinema selection silently reverts | Re-snapshot after clicking; if still on the wrong model, click the model pill and select from dropdown explicitly. |
-| Generation polling times out (>10 min) | Screenshot, ask user. Don't restart automatically — Higgsfield may already be processing. |
-| Out of credits mid-run | Stop cleanly. Report which shots completed; user can resume after topping up. |
-| `assemble-video.py` fails on codec mismatch | The script auto-falls-back to re-encode; if that also fails, the takes are corrupt — re-download. |
+| `/higgsfield-init` | Verify CLI installed, run `higgs auth login` if needed, list workspaces, help user select active. Report balance. |
+| `/higgsfield-make <brief>` | The main entry. Steps 1-8 above. |
+| `/higgsfield-pattern <name> [args]` | Skip brief expansion; jump straight to a named pattern with explicit args. |
+| `/higgsfield-test <1\|2\|3>` | Stage verification. Read `test/stage-N.md` and execute. |
+| `/higgsfield-budget [run-dir\|workspace]` | Read cost-log.json files, summarise spending. |
 
-For anything else, load `references/playwright-mcp-playbook.md` § Failure recovery.
+## What you must NEVER do
+
+- **Spend without preflight.** Always `higgs generate cost` before `higgs generate create`.
+- **Print `higgs auth token` output.** It's a credential. If you accidentally see it, do not echo it back.
+- **Improvise model choices.** Use `references/model-selection-guide.md`. If the user wants a model not on the list, run `higgs model get <name>` first to verify it exists.
+- **Use `soul_cast`** — it's broken upstream (issue #4). Use `cinematic_studio_3_0` or `kling3_0` for video.
+- **Spawn a browser, install Playwright, register an MCP server.** v2 architecture. Deleted. The CLI is the only path.
+- **Commit anything to git.** The user does that themselves.
+- **Auto-top-up credits.** When out of balance, stop and tell the user.
+
+## What you should always do
+
+- **Narrate as you go.** One short line per major step ("Reading brief", "Cost preflight: 612 credits estimated", "Generating shot 3 of 5"). The user is watching.
+- **Save state aggressively.** Every prompt, job ID, result URL goes to disk under `runs/<RUN_ID>/`. Resumption depends on it.
+- **Cite your sources.** When you make a model choice, mention which reference rule drove it ("per `model-selection-guide.md`, defaulting to soul_cinematic for stills").
+- **Report failures honestly.** "Shot 3 failed (Higgsfield returned error X), continuing with 4 shots" is better than silently dropping a shot.
+- **Use `--json`** when piping `higgs` output into bash. The human-readable tables break parsers.
 
 ## Cross-agent compatibility
 
-This skill is agent-agnostic. The same SKILL.md, references, and Playwright MCP server work in:
+This skill is agent-agnostic — it's plain markdown + bash invocations of a CLI. It works in:
+- **Claude Code** (Claude Desktop's Code tab) — slash commands in `.claude/commands/` activate immediately
+- **Codex** — read `SKILL.md` as context; invoke via natural language
+- **OpenCode** — same as Codex
+- **Gemini CLI** — same; tell it `Read skill/higgsfield-autopilot/SKILL.md and execute it.`
 
-- **Claude Code** — Playwright MCP installed via `claude mcp add` (see Prerequisites).
-- **Codex (OpenAI CLI)** — Playwright MCP via OpenAI MCP support; same `--cdp-endpoint` flag.
-- **OpenCode** — Playwright MCP via `.opencode/mcp.json`.
+The `higgs` CLI is the same binary regardless of which agent is calling it. Auth state, workspace selection, run dirs all persist outside the agent.
 
-The only platform-specific bit is the slash command in `.claude/commands/higgsfield-autopilot.md` (Claude Code only). For Codex/OpenCode, the user invokes the skill in natural language.
+## What this skill does NOT do (yet)
 
-## What this skill does NOT do
+- **Audio generation / voice-over** — out of scope. Higgsfield supports it via some models; v3.1 will add a `pattern-with-audio.md`.
+- **Caption / copy generation** — agent could do this trivially, but it's separate from video gen. Out of scope for now.
+- **Cross-run iteration / "make me another like last week's"** — `runs/cost-summary.json` records what happened, but there's no automatic "remix" pattern yet.
+- **Approval workflows** (drafts → revisions → finals) — for now the user is the approval gate. v3.1 may add a `draft/` vs `final/` distinction in deliverables.
 
-- **Prompt design from scratch** — formats prompts per Soul Cinema rules, defers to `docs/skills/skill-higgsfield-shot-designer.md` for theory.
-- **Other Higgsfield models** — Soul Cinema only. Veo/Sora/Kling would need their own snapshot-reading logic.
-- **Audio generation, lip-sync, character consistency (Soul ID)** — out of scope for v2.
-- **Cloud API path** — drives the web UI via MCP. The Cloud API exists but is under-documented (`docs/research/generative-media-orchestration.md` § 2.3.4); migrating would be a future v3.
-- **Auto-install dependencies** — the skill checks Prerequisites and stops if anything's missing. The user installs.
+## Reference index
+
+- `references/cli-cheatsheet.md` — every `higgs` command + when
+- `references/model-selection-guide.md` — decision tree for which model
+- `references/cost-discipline.md` — preflight, confirmation thresholds, ledger
+- `references/output-management.md` — run dir layout, deliverables
+- `references/soul-cinema-prompting.md` — prompt structure (Subject → Scene → Action → Camera → Lighting → Style)
+- `references/brief-expansion-rules.md` — brief → shotlist
+- `patterns/` — recipes per use case
+- `briefs/` — example inputs
+- `test/` — verification stages (1=cost preview only, 2=single shot, 3=full reel)
+- `scripts/assemble-video.py` — ffmpeg concat helper

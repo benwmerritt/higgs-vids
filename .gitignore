@@ -10,12 +10,9 @@ downloads/*.wav
 downloads/frames/
 
 # ─── Higgsfield autopilot artefacts ───────────────────────
-# Auth state — sensitive cookies and full Chrome profile, never commit.
-skill/**/auth/
 # Per-run outputs (assets, intermediate files, final.mp4).
 runs/
 skill/**/runs/
-*.session
 
 # Anywhere in the tree, ignore large media binaries by default
 *.mp4
