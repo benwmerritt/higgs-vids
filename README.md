@@ -35,17 +35,23 @@ Optional but recommended: install a "humanizer" skill if you have one — the to
 
 ## Slash commands
 
-Type these in Claude Code. They auto-detect a brand profile when one applies.
+Type these in Claude Code. The two commands that make this stop feeling generic are brand profiles and presets.
 
-### Setup & info — no credits spent
+### Setup your brand engine — no credits spent
 
 - **`/higgsfield-init`** — first-run health check. Confirms the Higgsfield CLI is installed and signed in, picks the active workspace, reports your credit balance. Run once per machine.
 
-- **`/higgsfield-brand-create <name>`** — adaptive interview to build a brand profile. ~30 minutes. Captures your voice, audience, visual DNA, do's and don'ts. Optionally fetches your existing channels and trains a Soul ID. Saves to `brands/<name>/`. (Soul ID training, if you opt in, is the only thing here that *might* spend a small amount — most of the interview is free.)
+**Problem: AI content usually sounds and looks like it could belong to anyone.** This fixes that. Claude interviews you once, learns your voice, audience, taste, visual references, constraints, content goals, and reusable assets, then saves that as a brand profile. After this, content generated with your brand stops starting from a blank generic prompt and starts from your actual style.
 
-- **`/higgsfield-preset-create <brand> <recipe>`** — save a reusable shape for a content type, e.g. *"Ben's IG carousels are always 6 slides, 4:5, list-format"*. After this, you can run that recipe by preset name and skip re-specifying the shape every time.
+Run: **`/higgsfield-brand-create <name>`**  
+Then generate with: **`/higgsfield-make --brand <name> "topic"`**
 
-- **`/higgsfield-budget [path|workspace]`** — *"what did I spend?"*. Reads cost logs across runs. No args = all-time total. With a run path = just that run. With a workspace name = filter to that workspace.
+**Problem: once you find a content format that works, you still have to explain it again every time.** Presets save the shape of repeatable work: carousel length, aspect ratio, platform, caption style, moodboard direction, product-shot mode, or whatever else makes that format yours. After this, you only change the topic.
+
+Run: **`/higgsfield-preset-create <brand> <recipe>`**  
+Then generate with: **`/higgsfield-make --preset <name> "topic"`**
+
+- **`/higgsfield-budget [path|workspace]`** — shows what you spent. Reads cost logs across runs. No args = all-time total. With a run path = just that run. With a workspace name = filter to that workspace.
 
 ### Generate content — spends credits
 
