@@ -93,6 +93,20 @@ This skill keeps **only** the Playwright MCP install. The numbered scripts are g
 
 You don't. The agent re-snapshots the page on every run and adapts. If a step systematically fails (e.g. a renamed button), the only file you'd ever edit is the relevant step in `SKILL.md` — and even that's usually a one-line tweak ("the model picker is now in the top-right" instead of "bottom-left").
 
+## Testing
+
+Three-stage harness in `test/`. Same files for any agent.
+
+```
+/higgsfield-test 1     # 0 credits — dry run, verifies auth + Soul Cinema + cost preview
+/higgsfield-test 2     # ~30 credits — single real shot
+/higgsfield-test 3     # ~150 credits — full 5-shot campaign
+```
+
+In Gemini / Codex / OpenCode, just say: *"Read `skill/higgsfield-autopilot/test/stage-1.md` and execute it."* Same outcome.
+
+See `test/README.md` for full details, failure-mode table, and cross-agent comparison advice.
+
 ## Limitations
 
 - Soul Cinema only (no Veo/Sora/Kling automation yet).
