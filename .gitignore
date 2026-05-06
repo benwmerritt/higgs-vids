@@ -25,7 +25,10 @@ presets/
 *.jpeg
 
 # ─── Downloaded research artefacts ────────────────────────
-downloads/frames/
+downloads/
+
+# ─── Browser automation leftovers (v1/v2 architecture) ────
+.playwright-mcp/
 
 # ─── Claude Code local config ─────────────────────────────
 .claude/settings.local.json

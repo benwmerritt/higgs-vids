@@ -32,9 +32,9 @@ This is how every "review your output" step in every pattern works.
 |---|---|
 | Load `frontend-design` skill mid-pattern | It's for HTML/CSS UI work; not relevant to social content. Loading it can steer the agent toward HTML outputs (which it did in real testing). |
 | Load `artifacts-builder` mid-pattern | Same reason — pulls toward web artefacts |
-| Load any skill not referenced from this skill's `references/` or `patterns/` files | Each loaded skill changes your behaviour. Stay inside the bundle. |
+| Load any skill not referenced from this skill's `references/` or `patterns/` files | Each loaded skill changes your behaviour. Stay inside the bundle unless a pattern explicitly names an official Higgsfield reference skill. |
 
-The skills you may use are documented at the top of `SKILL.md`. If a pattern needs additional reference material, it explicitly says "load `references/X.md`" — that's the only loading allowed mid-run.
+The skills you may use are documented at the top of `SKILL.md`. If a pattern needs additional reference material, it explicitly says "load `references/X.md`" or names the exact official Higgsfield reference skill. That's the only loading allowed mid-run.
 
 ## What you must NEVER write
 
@@ -90,6 +90,7 @@ If a tool is not in:
 - The Edit / Write tools (for files in the run dir)
 - A `mcp__claude_ai_*` MCP that the user explicitly requested
 - The `firecrawl_scrape` tool (only during `/higgsfield-brand-create` for fetching user's existing channels)
+- An official Higgsfield reference skill explicitly named by the active pattern
 
 …then you don't use it during a pattern run. Patterns are intentionally scoped to a small toolset. If a pattern seems to need a tool outside this list, that's a signal the pattern needs updating — surface to the user, don't reach for the tool.
 

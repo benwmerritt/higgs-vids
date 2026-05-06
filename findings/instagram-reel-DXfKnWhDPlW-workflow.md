@@ -18,7 +18,7 @@
 - `instagram_reel_DXfKnWhDPlW.txt` / `.srt` / `.vtt` / `.tsv` / `.json` — Whisper transcripts
 - `instagram_reel_DXfKnWhDPlW.description` — IG caption
 - `instagram_reel_DXfKnWhDPlW.info.json` — full IG metadata
-- `frames/frame_001.jpg` … `frame_024.jpg` — sampled every 2s
+- downloaded frame samples — sampled every 2s during the original investigation
 
 ## 2. Voiceover claims vs observed reality
 

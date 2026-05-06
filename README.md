@@ -4,27 +4,32 @@ A video production toolkit for Claude Code. Tell the agent what you want; it use
 
 Built on the official [Higgsfield CLI](https://github.com/higgsfield-ai/cli). MIT-licensed.
 
-## Setup (5 min, one-time)
+## Setup
 
-```bash
-# Dependencies
-npm install -g @higgsfield/cli           # the Higgsfield CLI
-brew install ffmpeg                      # for reel patterns (or apt install ffmpeg)
-pip install Pillow                       # for moodboard composition
+Fastest path: paste this into Claude Code.
 
-# Sign in (browser opens)
-higgs auth login
-
-# Clone + install
-git clone <repo-url> higgs-vids
-cd higgs-vids
-bash install.sh                          # symlinks skill + commands into ~/.claude/
-
-# Open Claude Code (in any folder), then:
-/higgsfield-init
+```text
+Clone https://github.com/benwmerritt/higgs-vids, read its README.md and INSTALL.md, run bash install.sh, and walk me through any missing setup. Do not generate content yet. Once setup passes, run /higgsfield-init.
 ```
 
-`install.sh` symlinks the skill and slash commands into `~/.claude/` so they work in **any** Claude Code session, not just inside this repo. Edits in this repo propagate immediately. To remove the symlinks (repo stays intact): `bash uninstall.sh`.
+Manual path:
+
+```bash
+git clone https://github.com/benwmerritt/higgs-vids.git
+cd higgs-vids
+bash install.sh
+```
+
+`install.sh` checks local dependencies, reports exact next steps for anything missing, and symlinks the skill and slash commands into `~/.claude/` so they work in **any** Claude Code session. To remove the symlinks (repo stays intact): `bash uninstall.sh`.
+
+Then open Claude Code and run:
+
+```text
+/higgsfield-init
+/higgsfield-test 1
+```
+
+Stage 1 is free. See [INSTALL.md](INSTALL.md) for dependency details, Windows notes, and the full first-run flow.
 
 Optional but recommended: install a "humanizer" skill if you have one — the toolkit applies it as a base voice layer so generated copy reads like a human wrote it before brand voice gets layered on.
 
@@ -113,6 +118,17 @@ The skill is plain markdown + bash. Slash commands are Claude Code UX sugar. The
 
 - **Claude Code** — slash commands native
 - **Codex / Gemini CLI / OpenCode** — point the agent at `AGENTS.md` and instruct via natural language
+
+## Public Repo Hygiene
+
+Private working data is ignored:
+
+- `brands/` — real brand profiles, source fetches, logos, people, products
+- `presets/` — reusable brand-specific content shapes
+- `runs/` — generated prompts, job IDs, URLs, costs, and deliverables
+- media binaries and downloaded research artifacts
+
+Do not commit generated media, private brand assets, Higgsfield auth output, or run ledgers.
 
 ## Origin
 

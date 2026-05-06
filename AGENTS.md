@@ -23,7 +23,7 @@ This is a **video production toolkit** built on top of the official Higgsfield C
 ## What you must NOT do
 
 - **Don't spawn a browser.** No Playwright, no MCP browser tools, no Chrome automation. Use the Read tool for images. See `references/agent-tooling-rules.md`.
-- **Don't load skills outside this bundle.** No `frontend-design`, no `artifacts-builder`, nothing else. The 2026-05-06 test failed because the agent loaded `frontend-design` and produced HTML.
+- **Don't load unrelated skills outside this bundle.** No `frontend-design`, no `artifacts-builder`, nothing that steers toward HTML or browser output. The only allowed external references are official Higgsfield product/listing skill docs when a pattern explicitly names them.
 - **Don't generate HTML files or stitched preview images.** Output is PNGs the user posts. Each slide is its own file in its own `shot-NN/` subfolder.
 - **Don't write to the repo root.** Every artefact goes in `runs/<run-dir>/`.
 - **Don't ship a batch without calibration.** Generate 1, review (Read tool), confirm with user, then batch the rest.
@@ -77,7 +77,7 @@ presets/                      ← reusable brand × pattern × platform configs 
 skill/higgsfield-autopilot/   ← the skill bundle — your operating manual
   SKILL.md                     ← read first
   references/                  ← CLI cheatsheet, model selection, cost discipline, brand/preset/interview/hook/caption/hashtag craft, prompting
-  patterns/                    ← 7 recipes per use case (carousel-post, product-reel, quick-social, multi-platform-render, brand-shoot, ecom-listing, character-campaign)
+  patterns/                    ← 8 recipes per use case (carousel-post, moodboard, product-reel, quick-social, multi-platform-render, brand-shoot, ecom-listing, character-campaign)
   briefs/                      ← example inputs
   scripts/assemble-video.py    ← ffmpeg concat helper (the only script you call)
   test/                        ← stage 1/2/3 verification prompts

@@ -139,4 +139,4 @@ These are documented as failure modes so future runs avoid them:
 | `index.html` output | Agent generated a web page mockup | No HTML — output is images |
 | Stitched preview screenshot | Agent made one tall PNG with all slides stacked | No stitched previews — each slide is its own file |
 | "Open the index.html to review" | Agent told user to open in browser | "Open the PNGs with Preview / your phone" |
-| Loaded `frontend-design` skill mid-run | Pulled in HTML-flavoured behaviour | Don't load skills outside this bundle (`references/agent-tooling-rules.md`) |
+| Loaded `frontend-design` skill mid-run | Pulled in HTML-flavoured behaviour | Don't load unrelated skills outside this bundle (`references/agent-tooling-rules.md`) |

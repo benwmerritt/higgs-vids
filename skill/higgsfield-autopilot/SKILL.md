@@ -173,7 +173,7 @@ These rules supersede earlier guidance:
 
 1. **Capability checks over tier-name checks.** Higgsfield's tier names have shifted (Starter/Plus/Ultra vs Basic/Pro/Ultimate/Creator) and will shift again. Read `higgs --json account status` for live state. Use observed behavior (model errors / balance delta / training succeeded) as the signal.
 2. **Actual cost is `account status` delta, not `generate cost`.** CLI is plan-blind (upstream issue #1). `generate cost` returns rack rate regardless of plan; we've measured 99% absorption for image models on Starter. Always log both: preflight (planning bound) AND actual delta (ground truth). See `references/cost-discipline.md`.
-3. **Tooling rules — `references/agent-tooling-rules.md` is non-negotiable.** Image inspection uses the Read tool (Claude has vision). NO Playwright MCP, NO browser opening, NO HTML output, NO stitched preview images, NO loading skills outside this bundle (`frontend-design` etc.). Real test failures came from breaking these rules.
+3. **Tooling rules — `references/agent-tooling-rules.md` is non-negotiable.** Image inspection uses the Read tool (Claude has vision). NO Playwright MCP, NO browser opening, NO HTML output, NO stitched preview images, NO unrelated skills outside this bundle (`frontend-design` etc.). Real test failures came from breaking these rules.
 4. **Calibration before batch.** When a pattern produces N outputs, generate ONE first, review it (Read tool, check brand match + AI tells), confirm with user, THEN batch the rest. Don't fire a whole batch and ship blindly.
 5. **Two-pass voice when humanizer skill is installed.** If `~/.agents/skills/superpowers:humanizer` (or equivalent) is present, the copy chain is: AI generates → humanizer (de-AI base layer) → brand voice (per profile) → ship. The humanizer is a foundation against AI tells; the brand voice is the personality on top. See README.md setup notes.
 6. **CLI version pinning.** `@higgsfield/cli` shipped 11 versions in 5 days during early May 2026. Run `higgs version` at session start; flag drift from validated 0.1.28.
@@ -185,7 +185,7 @@ These rules supersede earlier guidance:
 - **Bake tier names into decisions.** Use capability checks. Tier names will rename.
 - **Open a browser to view images.** Use the Read tool. Claude has vision. (See `references/agent-tooling-rules.md`.)
 - **Invoke Playwright MCP.** That whole architecture was deleted in v3. Reaching back for it is a regression bug.
-- **Load other skills mid-pattern.** No `frontend-design`, no `artifacts-builder`, nothing outside this bundle's `references/` and `patterns/`. Real failures came from this.
+- **Load unrelated skills mid-pattern.** No `frontend-design`, no `artifacts-builder`, nothing that steers toward HTML/browser output. If a pattern explicitly references an official Higgsfield product/listing skill doc, use only the named Higgsfield reference and return to this bundle's workflow.
 - **Generate HTML files or stitched preview images.** Output is PNGs the user posts. No web mockups.
 - **Write to the repo root.** All run artefacts go in `runs/<dir>/`.
 - **Ship a batch without calibration first.** Generate 1, review with Read tool, confirm style, THEN batch.
@@ -219,7 +219,7 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 ## What this skill does NOT do (yet)
 
 - **Audio generation / voice-over** — out of scope. Higgsfield supports it via some models; v3.1 will add a `pattern-with-audio.md`.
-- **Caption / copy generation** — agent could do this trivially, but it's separate from video gen. Out of scope for now.
+- **Generic copy-only work** — image/video patterns may generate captions and handoff copy when their recipe asks for it, but standalone copywriting is outside this toolkit.
 - **Cross-run iteration / "make me another like last week's"** — `runs/cost-summary.json` records what happened, but there's no automatic "remix" pattern yet.
 - **Approval workflows** (drafts → revisions → finals) — for now the user is the approval gate. v3.1 may add a `draft/` vs `final/` distinction in deliverables.
 
@@ -249,7 +249,7 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 - `references/brief-expansion-rules.md` — brief → shotlist
 
 **Patterns:**
-- `patterns/` — 7 recipes per use case (all full as of 2026-05-06; `carousel-post.md` is brand-aware)
+- `patterns/` — 8 recipes per use case (all full as of 2026-05-07; `carousel-post.md` and `moodboard.md` are brand-aware)
 - `briefs/` — example inputs
 - `test/` — verification stages (1=cost preview only, 2=single shot, 3=full reel)
 - `scripts/assemble-video.py` — ffmpeg concat helper

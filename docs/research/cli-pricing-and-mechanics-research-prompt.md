@@ -223,6 +223,6 @@ When the deep-research output comes back:
    - Per-model absorption table
    - Calibration recipe for first-run-on-new-plan
 4. Update `skill/higgsfield-autopilot/references/model-selection-guide.md` with subscriber-cost-tier overlay (which model is genuinely cheapest *given the user's actual plan*, not just rack rate)
-5. Decide whether the 3 stub patterns (`brand-shoot`, `ecom-listing`, `character-campaign`) need additional cost flags now that we know real pricing
+5. Decide whether the product/listing/character patterns (`brand-shoot`, `ecom-listing`, `character-campaign`) need additional cost flags now that we know real pricing
 
 This is the single biggest information unlock available right now. Worth getting right.

@@ -233,7 +233,7 @@ Brands evolve. The agent suggests a refresh when:
 - More than 3 generations in a row produced output the user rejected
 - The user's existing channels have new material the cached fetches don't reflect
 
-`/higgsfield-brand-refresh <name>` re-runs the interview with the existing profile pre-loaded — only asks about territories with low confidence or stale data.
+Re-running `/higgsfield-brand-create <name>` with an existing brand re-loads the profile and refreshes only territories with low confidence or stale data.
 
 ## Why this format works
 
