@@ -1,18 +1,23 @@
 # ─── Downloaded video assets ──────────────────────────────
 # Ignore raw video files in downloads/ but keep transcripts/metadata so
 # research artefacts stay in version control.
-downloads/*.mp4
-downloads/*.mkv
-downloads/*.webm
-downloads/*.m4a
-downloads/*.mp3
-downloads/*.wav
-downloads/frames/
+*.mp4
+*.png
+*.mkv
+*.webm
+*.m4a
+*.mp3
+*.wav
+frames/
 
 # ─── Higgsfield autopilot artefacts ───────────────────────
 # Per-run outputs (assets, intermediate files, final.mp4).
 runs/
 skill/**/runs/
+
+# Claude things
+.claude/settings.local.json
+
 
 # Brand profiles + presets — contain real photos, voice samples, possibly private business info.
 # Users who want to commit a public brand kit can override per-folder with a !brands/<name>/ rule.
