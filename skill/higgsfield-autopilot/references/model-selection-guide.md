@@ -57,10 +57,12 @@ Or `imagegen_2_0 / gpt_image_2 --image <id> --quality high` for sharp redos.
 
 **Cheaper alternatives** (rack-rate prices, then check actual absorption on user's plan):
 - `kling3_0` — `--start-image`, `--mode std|pro`, `--duration 5` — generally cheapest premium video
-- `seedance_2_0` — `--mode std|pro`, `--genre noir|...` — stylized; SOTA all-purpose per official skill
+- `seedance_2_0` — `--image|--start-image|--end-image`, `--mode std|pro`, `--genre noir|...` — stylized; SOTA all-purpose per official skill
 - `wan2_7` — Alibaba, often cheap
-- `minimax_hailuo` — known low-cost option, strong physics
-- `kling2_6` — older Kling, cheaper than 3.0; **listed as one of Ultra's "pick-one-unlimited" video models** per April article
+- `minimax_hailuo` — `--image` (multi-image input), `--resolution 512|768|1080`, `--duration 6|10` — known low-cost option, strong physics
+- `kling2_6` — `--image` ONLY (no `--start-image`!), `--duration 5|10`, `--sound true|false` — older Kling, cheaper than 3.0; **listed as one of Ultra's "pick-one-unlimited" video models** per April article
+
+> **Per-model image-flag differences (2026-05-07):** the `--start-image` / `--image` / `--medias` flags are NOT universal. Always run `higgs --json model get <name>` to see the schema before building a command. See `references/cli-cheatsheet.md` § Media flags for the verified table.
 
 **Ultra "pick-one-unlimited" candidates** (per April 2026 official article — `[STALE — verify]`):
 - `seedance1_5` (Pro)

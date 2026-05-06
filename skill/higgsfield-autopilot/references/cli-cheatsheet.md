@@ -52,6 +52,18 @@ Single source of truth for which `higgs` command does what. The agent loads this
 
 Media flags (`--image`, `--start-image`, `--end-image`, `--video`, `--audio`) accept either an upload UUID, a previous job UUID, OR a local file path (auto-uploaded). Prefer reusing upload IDs across a run to save round-trips.
 
+> **The flags are NOT universal across models.** Each video model accepts a different subset. Always run `higgs --json model get <name>` first to see what flags that specific model takes. Examples (verified 2026-05-07):
+>
+> | Model | Image input flag | Notes |
+> |---|---|---|
+> | `kling2_6` | `--image` only | Rejects `--start-image` with "Model accepts only --image" |
+> | `minimax_hailuo` | `--image` (1+ — array under the hood) | Multi-image input supported |
+> | `seedance1_5`, `seedance_2_0` | `--image` or `--start-image` or `--end-image` | More flexible — accepts multiple roles via `medias` array |
+> | `kling3_0` | `--start-image` (verify with `model get`) | Newer Kling — more flexible than 2.6 |
+> | `cinematic_studio_3_0` | `--medias` array (multiple ref images) | Heaviest creative coverage |
+>
+> **Don't assume.** Cost-discipline says preflight before spending; this rule says **schema-check before crafting the command**. Model schemas drift; the CLI is the source of truth.
+
 ## Generation
 
 | Command | Use when |
