@@ -12,7 +12,8 @@ Fastest path: paste this into Claude Code.
 Clone https://github.com/benwmerritt/higgs-vids, read its README.md and INSTALL.md, run bash install.sh, and walk me through any missing setup. Do not generate content yet. Once setup passes, run /higgsfield-init.
 ```
 
-Manual path:
+<details>
+<summary>Manual install commands</summary>
 
 ```bash
 git clone https://github.com/benwmerritt/higgs-vids.git
@@ -20,16 +21,17 @@ cd higgs-vids
 bash install.sh
 ```
 
+</details>
+
 `install.sh` checks local dependencies, reports exact next steps for anything missing, and symlinks the skill and slash commands into `~/.claude/` so they work in **any** Claude Code session. To remove the symlinks (repo stays intact): `bash uninstall.sh`.
 
 Then open Claude Code and run:
 
 ```text
 /higgsfield-init
-/higgsfield-test 1
 ```
 
-Stage 1 is free. See [INSTALL.md](INSTALL.md) for dependency details, Windows notes, and the full first-run flow.
+`/higgsfield-init` verifies the CLI, sign-in, workspace, balance, and model access. If you want a deeper no-credit workflow check later, run `/higgsfield-test 1`. See [INSTALL.md](INSTALL.md) for dependency details, Windows notes, and the full first-run flow.
 
 Optional but recommended: install a "humanizer" skill if you have one — the toolkit applies it as a base voice layer so generated copy reads like a human wrote it before brand voice gets layered on.
 
