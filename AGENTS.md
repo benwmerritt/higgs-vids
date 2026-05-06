@@ -14,12 +14,21 @@ This is a **video production toolkit** built on top of the official Higgsfield C
 |---|---|
 | `higgs` CLI | All Higgsfield generation, upload, account, workspace operations. See `skill/higgsfield-autopilot/references/cli-cheatsheet.md`. |
 | Bash | To invoke `higgs`, parse `--json` output with `jq`, run `curl` for downloads, run `ffmpeg`. |
+| **Read tool** | **For inspecting generated images.** Claude has vision. Read the PNG, check logo intact, palette match, no AI tells. Mandatory in every pattern. |
 | `python3` | Only for `skill/higgsfield-autopilot/scripts/assemble-video.py` (ffmpeg concat). No other Python. |
 | Markdown reading | All your operational knowledge lives in `.md` files under `skill/higgsfield-autopilot/`. |
+| `firecrawl_scrape` | Only during `/higgsfield-brand-create` to fetch user's existing channels (website, IG). Not during patterns. |
+| Humanizer skill (if installed) | Apply as the FIRST voice pass on any generated copy, before brand voice. See README.md setup notes. |
 
 ## What you must NOT do
 
-- **Don't spawn a browser.** No Playwright, no MCP browser tools, no Chrome automation. The CLI replaced all of that.
+- **Don't spawn a browser.** No Playwright, no MCP browser tools, no Chrome automation. Use the Read tool for images. See `references/agent-tooling-rules.md`.
+- **Don't load skills outside this bundle.** No `frontend-design`, no `artifacts-builder`, nothing else. The 2026-05-06 test failed because the agent loaded `frontend-design` and produced HTML.
+- **Don't generate HTML files or stitched preview images.** Output is PNGs the user posts. Each slide is its own file in its own `shot-NN/` subfolder.
+- **Don't write to the repo root.** Every artefact goes in `runs/<run-dir>/`.
+- **Don't ship a batch without calibration.** Generate 1, review (Read tool), confirm with user, then batch the rest.
+- **Don't ship copy with em dashes.** Instant AI tell. Refuse and rewrite.
+- **Don't inflate user words.** When writing brand profiles, use the user's verbatim phrasing; mark agent inferences as `[brackets]`.
 - **Don't print `higgs auth token` output.** It's a credential.
 - **Don't spend without preflight.** Always run `higgs generate cost ...` before `higgs generate create ...`. See `references/cost-discipline.md`.
 - **Don't commit to git.** The user does that.

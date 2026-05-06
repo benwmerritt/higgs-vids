@@ -131,19 +131,23 @@ If the brand's existing hooks underperform consistently:
 
 ## Output shape from the agent
 
-When generating any post, the agent should produce 2-3 hook options for the user to pick from:
+When generating any post, the agent produces 2-3 hook options for the user to pick from. **Each option ≤10 words. No em dashes.**
 
 ```
 Hook options (pick one):
 
-A) [conversational style hook]
-B) [specific-time / number style hook]
-C) [contrarian / loss-aversion style hook]
+A) [conversational, ≤10 words]
+B) [specific-time / number, ≤10 words]
+C) [contrarian / loss-aversion, ≤10 words]
 
-I'd pick B because [reason aligned with brand profile].
+I'd pick B because [reason from brand profile].
 ```
 
-The user picks; the agent finalizes the post around it.
+The user picks; the agent finalizes the post around it. **Self-check before showing options:** did any option violate the hard rules above? If yes, regenerate that option.
+
+## Real-world failure (2026-05-06 test run)
+
+The agent shipped a 67-word "hook" with em dashes. That's not a hook. The hard cap and em-dash ban added above are a direct response. **A hook is one short scroll-stopping line, not a thesis statement.**
 
 ## Sources
 

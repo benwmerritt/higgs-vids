@@ -15,17 +15,24 @@ You talk to your AI agent (Claude Code, Codex, Gemini CLI, OpenCode). The agent 
 npm install -g @higgsfield/cli
 brew install ffmpeg                      # or apt install ffmpeg
 
-# 2. Sign in (opens browser for device-code)
+# 2. Sign in to Higgsfield (opens browser for device-code, one-time)
 higgs auth login
 
-# 3. Clone this repo
+# 3. (Recommended) Install the humanizer skill
+#    Adds a "de-AI" voice layer that runs before brand voice — copy reads as
+#    a human wrote it, not an AI. Without it, captions can leak AI tells.
+#    The toolkit auto-uses it when present.
+#    Install: see https://github.com/your-skill-host/humanizer or your skill manager.
+
+# 4. Clone this repo
 git clone <this-repo-url> higgs-vids
 cd higgs-vids
 
-# 4. Open in Claude Code (Claude Desktop → Code tab → "Open" → this folder)
+# 5. Open in Claude Code (Claude Desktop → Code tab → "Open" → this folder)
 #    Then in the chat:
 /higgsfield-init                          # verifies setup, picks workspace
-/higgsfield-make briefs/example-product-reel.md
+/higgsfield-brand-create <yourname>       # one-time per brand — adaptive interview
+/higgsfield-make --brand <yourname> "topic for your post"
 ```
 
 That's it. The agent does the rest.

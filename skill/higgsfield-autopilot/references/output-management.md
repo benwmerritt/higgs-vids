@@ -2,9 +2,35 @@
 
 How the agent organises its outputs so they're navigable, deliverable, and resumable.
 
-## Run directory layout
+> **Hard rules** (per `references/agent-tooling-rules.md`):
+> - Every run artefact lives in the run dir. **NEVER write to the repo root.**
+> - Output is **images + caption markdown**. **No HTML, no stitched previews, no scrollable mockups.**
+> - The user posts to Instagram from their phone — they need PNGs and a caption to copy.
 
-Every invocation creates `runs/<YYYY-MM-DD-HHMM>/` under the repo root. Predictable structure means the agent can resume mid-run and the user can find anything fast.
+## Run directory naming (mandatory format)
+
+```
+runs/<YYYY-MM-DD>-<brand>-<pattern>-<seq>/
+```
+
+- **Date prefix mandatory** — sorts chronologically, instantly readable
+- **Brand name** in lowercase (or `none` if no brand profile is in play)
+- **Pattern type** lowercase (`carousel`, `reel`, `shoot`, etc.)
+- **`<seq>`** auto-increments per same-day same-brand-pattern run
+
+Examples:
+
+```
+runs/2026-05-06-ben-carousel-1/        ← Ben's first carousel run today
+runs/2026-05-06-ben-carousel-2/        ← Ben's second carousel run today
+runs/2026-05-07-ben-reel-1/            ← Ben's first reel tomorrow
+runs/2026-05-07-acme-shoot-1/          ← Acme client shoot
+runs/2026-05-08-none-carousel-1/       ← No brand, one-off exploration
+```
+
+Computing `<seq>`: list `runs/` for the same date+brand+pattern prefix, take max(seq)+1, default 1.
+
+## Run directory layout
 
 ```
 runs/2026-05-06-1430/
@@ -55,22 +81,25 @@ Add `--force` semantics if the user explicitly wants to re-do a step.
 
 This is what the user (or their client) receives. **Treat it as the only thing the user might look at.** Everything else is debug context.
 
-Required:
-- The final assembled video (`reel-final.mp4`)
+Required (vary by pattern):
+- The deliverable assets — PNGs for image patterns, MP4 for video patterns
 - A `README.md` with:
   - Brief title + one-line summary
   - Pattern used
   - Total cost (read from cost-log.json)
-  - Number of shots, total duration
+  - Asset count + dimensions
   - Models used per shot
   - Date + workspace
-  - Any caveats (e.g. "Shot 3 had to be regenerated — note quality difference")
+  - Any caveats ("Shot 3 needed regeneration", "Calibration shot retried twice", etc.)
+  - **Plain-language posting instructions** — "upload slides 01-06 in order", "open the file with Preview", etc.
 
-Optional (depending on pattern):
-- Individual shot videos (some clients want these)
-- Stills (poster frames)
-- Multi-platform variants (if pattern is `multi-platform-render`, output 9:16, 1:1, 16:9)
-- Source assets (uploaded reference photos)
+**What MUST NOT be in `deliverables/`:**
+- ❌ HTML files (`.html`, `.htm`)
+- ❌ Stitched / scrollable preview images (one tall PNG with all slides stacked)
+- ❌ Combined "mockup" screenshots
+- ❌ Files outside the patterns the user asked for
+
+The user opens these files in Preview / Finder / their phone. They don't open them in a browser. Don't generate web artefacts.
 
 ## Cross-run summary
 
@@ -91,10 +120,23 @@ The `.gitignore` at the repo root excludes `runs/` and `skill/**/runs/`. **Don't
 
 If the user wants to share a deliverable, they share the file directly (Slack, Drive, etc.) — not by committing it.
 
-## When the user asks "where's my video?"
+## When the user asks "where's my video?" / "where's my carousel?"
 
 The answer should always be a single concrete path:
 
-> "`runs/2026-05-06-1430/deliverables/reel-final.mp4`. Total cost: 612 credits. See `runs/2026-05-06-1430/deliverables/README.md` for the full handoff."
+> "`runs/2026-05-06-ben-carousel-1/deliverables/`. 6 slides + caption. Total spend: 0.7 credits. Open the PNGs with Preview or your phone."
 
-Never "check the runs folder" or "in your output directory somewhere." Be specific.
+Never "check the runs folder" or "in your output directory somewhere." Be specific. Path-first.
+
+## Anti-patterns (real failures from 2026-05-06 test run)
+
+These are documented as failure modes so future runs avoid them:
+
+| ❌ Failure | What happened | Fix |
+|---|---|---|
+| Review PNGs in repo root | Agent wrote `review-slide-1.png` etc. to `./` instead of run dir | Every artefact goes in `runs/<run-dir>/` |
+| Run dir named `ben-carousel-1` (no date) | Hard to chronologically sort runs | `<YYYY-MM-DD>-<brand>-<pattern>-<seq>` is mandatory |
+| `index.html` output | Agent generated a web page mockup | No HTML — output is images |
+| Stitched preview screenshot | Agent made one tall PNG with all slides stacked | No stitched previews — each slide is its own file |
+| "Open the index.html to review" | Agent told user to open in browser | "Open the PNGs with Preview / your phone" |
+| Loaded `frontend-design` skill mid-run | Pulled in HTML-flavoured behaviour | Don't load skills outside this bundle (`references/agent-tooling-rules.md`) |

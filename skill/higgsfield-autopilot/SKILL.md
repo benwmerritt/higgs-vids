@@ -167,25 +167,34 @@ When invoked with `--brand` or `--preset`, the agent loads the brand profile **f
 
 See `references/brand-profile-format.md` and `references/preset-format.md` for schemas; `references/interview-craft.md` for how the interview is run.
 
-## Foundational rules (added 2026-05-06 after research)
+## Foundational rules (added 2026-05-06)
 
-These two rules supersede earlier guidance and apply to every spending decision:
+These rules supersede earlier guidance:
 
-1. **Capability checks over tier-name checks.** Higgsfield's tier names have shifted (Starter/Plus/Ultra in their April article vs Basic/Pro/Ultimate/Creator in May reviews) and will likely shift again. Don't write logic that depends on the literal plan-name string. Instead: read `higgs --json account status` for live state and use observed behavior (model errors out / balance went down / training succeeded) as the signal.
-2. **Actual cost is `account status` delta, not `generate cost`.** The CLI is plan-blind (upstream issue #1, see `references/known-issues.md`). `generate cost` returns rack rate regardless of plan. We've measured 99% absorption for image models on Starter — the actual delta is 100× smaller than preflight. Always log both: preflight (planning bound) AND actual delta (ground truth). See `references/cost-discipline.md`.
-
-Also: **pin the CLI version.** `@higgsfield/cli` shipped 11 versions in 5 days during early May 2026. Run `higgs version` at session start; if the version differs from when this skill was last validated (0.1.28, 2026-05-04), be alert for flag/behavior changes.
+1. **Capability checks over tier-name checks.** Higgsfield's tier names have shifted (Starter/Plus/Ultra vs Basic/Pro/Ultimate/Creator) and will shift again. Read `higgs --json account status` for live state. Use observed behavior (model errors / balance delta / training succeeded) as the signal.
+2. **Actual cost is `account status` delta, not `generate cost`.** CLI is plan-blind (upstream issue #1). `generate cost` returns rack rate regardless of plan; we've measured 99% absorption for image models on Starter. Always log both: preflight (planning bound) AND actual delta (ground truth). See `references/cost-discipline.md`.
+3. **Tooling rules — `references/agent-tooling-rules.md` is non-negotiable.** Image inspection uses the Read tool (Claude has vision). NO Playwright MCP, NO browser opening, NO HTML output, NO stitched preview images, NO loading skills outside this bundle (`frontend-design` etc.). Real test failures came from breaking these rules.
+4. **Calibration before batch.** When a pattern produces N outputs, generate ONE first, review it (Read tool, check brand match + AI tells), confirm with user, THEN batch the rest. Don't fire a whole batch and ship blindly.
+5. **Two-pass voice when humanizer skill is installed.** If `~/.agents/skills/superpowers:humanizer` (or equivalent) is present, the copy chain is: AI generates → humanizer (de-AI base layer) → brand voice (per profile) → ship. The humanizer is a foundation against AI tells; the brand voice is the personality on top. See README.md setup notes.
+6. **CLI version pinning.** `@higgsfield/cli` shipped 11 versions in 5 days during early May 2026. Run `higgs version` at session start; flag drift from validated 0.1.28.
 
 ## What you must NEVER do
 
 - **Spend without preflight.** Always `higgs generate cost` before `higgs generate create` — even if you suspect the plan absorbs it.
 - **Trust `generate cost` as actual cost.** It's rack rate. Pair with `account status` before/after.
 - **Bake tier names into decisions.** Use capability checks. Tier names will rename.
-- **Print `higgs auth token` output.** It's a credential. If you accidentally see it, do not echo it back.
-- **Improvise model choices.** Use `references/model-selection-guide.md`. If the user wants a model not on the list, run `higgs model get <name>` first to verify it exists.
-- **Use `soul_cast`** — it's broken upstream (issue #4). Use `cinematic_studio_3_0 --image <still-job-id>` or `kling3_0 --start-image <still-job-id>` for Soul-driven video. See `references/known-issues.md`.
+- **Open a browser to view images.** Use the Read tool. Claude has vision. (See `references/agent-tooling-rules.md`.)
+- **Invoke Playwright MCP.** That whole architecture was deleted in v3. Reaching back for it is a regression bug.
+- **Load other skills mid-pattern.** No `frontend-design`, no `artifacts-builder`, nothing outside this bundle's `references/` and `patterns/`. Real failures came from this.
+- **Generate HTML files or stitched preview images.** Output is PNGs the user posts. No web mockups.
+- **Write to the repo root.** All run artefacts go in `runs/<dir>/`.
+- **Ship a batch without calibration first.** Generate 1, review with Read tool, confirm style, THEN batch.
+- **Ship copy with em dashes (`—`)** — instant AI tell. Refuse and rewrite.
+- **Inflate user statements when writing brand profiles.** Verbatim user words; agent inferences in `[brackets]`.
+- **Print `higgs auth token` output.** It's a credential.
+- **Improvise model choices.** Use `references/model-selection-guide.md`. If the user wants a model not listed, run `higgs model get <name>` first.
+- **Use `soul_cast`** — broken upstream (issue #4). Use `cinematic_studio_3_0 --image <still-job-id>` or `kling3_0 --start-image <still-job-id>` for Soul-driven video.
 - **Assume Canvas / webhooks / batch-discounts exist.** They don't. Polling, individual jobs, linear cost.
-- **Spawn a browser, install Playwright, register an MCP server.** v2 architecture. Deleted. The CLI is the only path.
 - **Commit anything to git.** The user does that themselves.
 - **Auto-top-up credits.** When out of balance, stop and tell the user (no auto-overage exists anyway).
 
@@ -229,9 +238,11 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 - `references/brand-profile-format.md` — schema for `brands/<name>/profile.md`
 - `references/preset-format.md` — schema for `presets/<name>.md`
 - `references/asset-conventions.md` — asset folder layout, Soul ID photo requirements
-- `references/hook-craft.md` — slide 1 / first-line hook patterns + AI-tells to avoid
-- `references/caption-craft.md` — caption shape per platform + AI-tells
+- `references/hook-craft.md` — slide 1 / first-line hook patterns + AI-tells (10-word cap, em-dash ban)
+- `references/caption-craft.md` — caption shape per platform + AI-tells (em-dash ban, slide-copy cap)
 - `references/hashtag-strategy.md` — per-platform counts + brand hashtag families
+- `references/calendar-defaults.md` — cadence + topic mix per brand type
+- `references/agent-tooling-rules.md` — Read tool for image review, no Playwright/browser/HTML/skill-loading
 
 **Prompt-craft (kept):**
 - `references/soul-cinema-prompting.md` — prompt structure (Subject → Scene → Action → Camera → Lighting → Style)

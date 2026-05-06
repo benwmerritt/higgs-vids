@@ -9,6 +9,9 @@ Patterns are agent-facing. The agent picks one based on the brief, then follows 
 The agent picks a pattern by reading the brief and matching against this tree (top to bottom — first match wins):
 
 ```
+brief asks for a moodboard / creative direction / pitch deck imagery / pre-production references?
+  → moodboard.md  ← brand-aware; for client presentation, not finished IG content
+
 brief asks for an Instagram / LinkedIn carousel (multi-slide, 5-10 slides)?
   → carousel-post.md  ← brand-aware; needs a brand profile
 
@@ -49,6 +52,7 @@ Every pattern follows the same structure (so the agent can rely on the layout):
 | Pattern | Status | Rack-rate cost | Notes |
 |---|---|---|---|
 | `carousel-post.md` | ✅ Full | ~60-120 credits rack (~0.6-1.2 actual on paid) | **Brand-aware** — IG/LinkedIn carousel from a brand profile + topic; produces slides + caption + hashtags |
+| `moodboard.md` | ✅ Full | ~72-144 credits rack (~0.7-1.4 actual on paid) | **Brand-aware** — pitch / pre-production moodboard for client presentation. 9 images + creative-direction copy + palette. |
 | `product-reel.md` | ✅ Full | ~600-12,500 credits | Multi-shot 9:16 reel, image-to-video chain |
 | `quick-social.md` | ✅ Full | ~50-300 credits | Single still or short clip, low-credit fast turn |
 | `multi-platform-render.md` | ✅ Full | ~36-150 credits per concept × N aspects | One concept, multiple aspects |

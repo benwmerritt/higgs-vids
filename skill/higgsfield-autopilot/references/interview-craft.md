@@ -120,13 +120,39 @@ Quick. Mostly multi-choice OK here, since this is mechanical:
 - Posting cadence rough estimate
 - Most-used post format (single image / carousel / reel / story / mix)
 
-### Territory 8 — The summary playback
+### Territory 8 — The summary playback (BULLET POINTS, not paragraphs)
 
-End by playing back what you've heard:
+End by playing back what you've heard. **Format: bullet points, one per fact.** Not paragraphs. Not "here's what I've got" walls of text.
 
-> "OK — here's what I've got. You're [specific summary]. Your audience is [specific]. The thing that makes you stop being a commodity is [specific spike]. You'll never produce [specific don'ts]. I'm going to write all of this to `brands/<name>/profile.md`. Anything I got wrong or want to add?"
+```
+I think I've got an understanding. Here's what I heard:
 
-If they correct anything, update and play back again. Don't save until they sign off.
+- Name: Ben Merritt
+- Where: Adelaide
+- What you do: [specific, in their words]
+- Differentiator (the spike): [specific, non-substitutable thing]
+- Audience: [specific person, not demographic]
+- Voice: [observed sentence patterns + lexicon]
+- Don'ts: [their cringe-content list]
+- Assets you've shared: [what's in /assets/ + Soul ID status]
+
+Open questions I'd still want to dig into:
+- [thing 1]
+- [thing 2]
+- ... (don't cap — list everything you didn't fully resolve)
+
+Does this feel right? Anything missing, or should we move on to making content?
+```
+
+**Critical phrasing:**
+- ✅ "I *think* I've got an understanding" — acknowledge the agent doesn't know what enough is
+- ❌ "I've got enough" — sounds final and overconfident
+- ✅ "Anything missing, or should we move on?" — gives the user the door to add more
+- ❌ "Saving the profile now" — doesn't give them a chance
+
+If they say "no, there's more" → keep interviewing. If they say "looks good" → save.
+
+**Don't cap the open-questions list.** If the conversation surfaced 7 things that need more depth later, list all 7. The list is a TODO for future sessions, not a "here's a few things" courtesy.
 
 ## Question order rules
 
@@ -156,8 +182,29 @@ The agent should treat these as hard constraints when generating captions, slide
 - Present the user with a multi-choice form. Even when the answer space is small (e.g. platforms), ask conversationally first; lists are fallbacks if they don't volunteer.
 - Make them rank their values. Nobody knows what their values are when asked cold — they know stories, opinions, frustrations.
 - Accept "we're like X but with [twist]" as a complete answer. Drill into the twist.
+- **Inflate user statements.** If they said "I'd like to do 4 carousels", DON'T write "your goal is 4 carousels per week, posted every Monday" in the profile. Stick to what they actually said. Add nothing they didn't volunteer.
+- **Fabricate hashtag families, colour palettes, or any field the user didn't address.** Mark `[gap]` and ask later instead of guessing. Test feedback (2026-05-06): the agent fabricated hashtag families and an explicit posting cadence the user never mentioned. Don't do this.
+- **Assume visual decisions without asking.** If the user gave a logo and you extracted colours from it, that's good context — but DON'T lock in "dark theme" or "minimalist style" or any aesthetic direction without explicit confirmation. Ask: "I extracted these colours from your logo. How do you feel about going dark with this, or do you prefer light? Any reference brands you like the visual direction of?"
 - Fill in the profile with assumed defaults. If a question wasn't answered, put `[gap — ask later]` in the profile rather than guessing.
 - Move to generating content before the brand profile has a "spike" — at least one specific, non-substitutable thing.
+
+## The "stick close to what they said" rule
+
+The user's words go in the profile. The agent's interpretations go in `[brackets]` flagged as inferences:
+
+✅ Good profile entry:
+```
+What you do: "Helping small studios scale without losing the founder's voice."
+[inference: positions against agency-style scaling that produces generic output]
+```
+
+❌ Bad profile entry (inflated):
+```
+What you do: Empowering small creative studios to achieve sustainable growth
+while maintaining authentic brand identity through founder-led storytelling.
+```
+
+The first version uses Ben's exact phrasing. The second is the agent's "improvement" of it — and now the brand voice is the agent's voice, not Ben's. **Always prefer the user's actual words.**
 
 ## Adapting on the fly
 

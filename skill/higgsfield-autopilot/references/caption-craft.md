@@ -4,6 +4,21 @@ How the agent writes captions that read like a human wrote them, not an LLM. Dis
 
 > **Why captions matter:** the image stops the scroll, the caption decides whether they save / share / follow. A great image with a templated caption underperforms a good image with a great caption.
 
+## Hard bans (refuse to ship — non-negotiable)
+
+These are immediate-fail rules. If a caption draft contains any of these, the agent rewrites — does not ship.
+
+| ❌ Banned | What it looks like | Why |
+|---|---|---|
+| **Em dashes (`—`)** | "We don't just make content — we make movements." | Instant AI tell in 2026. Replace with period, comma, or colon. |
+| **Carousel slide copy >15 words** | A whole paragraph crammed onto slide 4 | One short beat per slide is the carousel format |
+| **Hooks >10 words** | The 67-word "hook" from the 2026-05-06 test | A hook is one scroll-stopping line, not a thesis |
+| **Generic openers** | "In today's fast-paced world", "Now more than ever", "The secret to" | Templated AI fingerprint |
+| **Closed yes/no questions** | "Are you ready to transform your business?" | Triggers cynicism; nobody answers |
+| **Symmetric emoji clusters** | "🚀✨💪" at line ends | ChatGPT-flavoured |
+
+The agent **scans every caption draft against this table** before showing it to the user. Rewrites until clean.
+
 ## The AI-tells (refuse to ship copy that does these)
 
 These are the patterns that immediately mark a caption as AI-generated. The agent treats them as hard fails and rewrites until none are present:
@@ -71,16 +86,21 @@ Often the strongest caption. AI rarely produces these because it wants to keep g
 
 A specific question that someone with relevant experience can't help but answer. Not "what do you think?" — that's bait without specificity. Better: "what's the one thing you'd unlearn from your first year doing this?"
 
-## Length per platform
+## Length per platform AND per surface
 
-These are guidelines from MCP advice, adapt per brand:
-
-| Platform | Sweet-spot length | Notes |
+| Surface | Hard cap | Sweet-spot |
 |---|---|---|
-| **Instagram** | 50-200 words for engagement; up to 500 for storytelling posts | First 125 chars show in feed before "more" — make those count |
-| **TikTok** | Short. 1-3 sentences in caption (the video is the content) | Caption supports the video, doesn't replace it |
-| **LinkedIn** | 100-300 words; longer storytelling 500-1500 words OK | Line breaks every 1-2 sentences. Big white space helps readability. |
-| **Twitter / X** | Under 280 chars (forced); strong threads 7-12 tweets | First tweet is the hook; don't waste it on filler |
+| **Hook** (any platform — slide 1, video first line, opener) | **10 words** | 5-8 |
+| **Carousel slide copy** (slides 2..N) | **15 words per slide** | 8-12 |
+| **CTA slide / line** | **10 words** | 4-7 |
+| **Instagram caption** | 2,200 chars (platform limit) | 50-200 words |
+| **TikTok caption** | 2,200 chars | 1-3 sentences |
+| **LinkedIn caption** | 3,000 chars | 100-300 words; storytelling up to 500 |
+| **Twitter / X** | 280 chars | Whole post |
+
+The agent enforces the hard caps. If brand voice or topic genuinely needs more space, it splits across slides / posts — never overshoots a single surface.
+
+**Why this matters (2026-05-06 test):** the first run produced essay-length blocks crammed onto carousel slides. People scroll. The cap forces the actual social-media format — short beats, one idea per slide.
 
 ## Voice transfer from brand profile
 
