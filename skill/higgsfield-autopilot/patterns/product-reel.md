@@ -32,15 +32,41 @@ For 5 shots at 9:16:
 
 ## Steps
 
-### 0. Pre-flight
+### 0. Pre-flight + observability + live model check
+
+Use the canonical run-init snippet from `references/output-management.md` § commands.log. For product-reel both image and video models must be checked:
 
 ```bash
-# Verify auth + workspace
-higgs --json account status | jq '{credits, plan}'
-higgs --json workspace status | jq '{name, id}'
+PATTERN=product-reel
+# Required models depend on tier (cheap / mid / premium). Check both lists.
+REQUIRED_IMAGE_MODELS=("soul_cinematic")
+REQUIRED_VIDEO_MODELS=("cinematic_studio_3_0")   # mid tier default; swap if user picks cheap or premium
+
+# Init commands.log + preflight (per output-management.md snippet)
+# ... START, PREFLIGHT lines ...
+
+# Check image models
+higgs --json model list --image > "$RUN_DIR/models-available-image.txt"
+echo "[$(TS)] MODELS    higgs model list --image → exit=0 (saved: models-available-image.txt)" >> "$RUN_DIR/commands.log"
+for M in "${REQUIRED_IMAGE_MODELS[@]}"; do
+  jq -e --arg m "$M" '.[] | select(.name == $m)' "$RUN_DIR/models-available-image.txt" > /dev/null \
+    && echo "[$(TS)] CHECK     $M ✓ present (image)" >> "$RUN_DIR/commands.log" \
+    || { echo "[$(TS)] CHECK     $M ✗ NOT FOUND — stopping" >> "$RUN_DIR/commands.log"; exit 1; }
+done
+
+# Check video models
+higgs --json model list --video > "$RUN_DIR/models-available-video.txt"
+echo "[$(TS)] MODELS    higgs model list --video → exit=0 (saved: models-available-video.txt)" >> "$RUN_DIR/commands.log"
+for M in "${REQUIRED_VIDEO_MODELS[@]}"; do
+  jq -e --arg m "$M" '.[] | select(.name == $m)' "$RUN_DIR/models-available-video.txt" > /dev/null \
+    && echo "[$(TS)] CHECK     $M ✓ present (video)" >> "$RUN_DIR/commands.log" \
+    || { echo "[$(TS)] CHECK     $M ✗ NOT FOUND — stopping" >> "$RUN_DIR/commands.log"; exit 1; }
+done
 ```
 
 If active workspace looks wrong for this brief (e.g. brief mentions client X but workspace is "Private"), **stop** and ask the user to confirm or switch via `higgs workspace set <id>`.
+
+Every subsequent `higgs` invocation in this pattern appends a line to `commands.log` (GEN / DL / UPLOAD / RETRY / FAIL / END).
 
 ### 1. Read brief + expand to shotlist
 
@@ -89,12 +115,16 @@ ARGS=(soul_cinematic --prompt "$STILL_PROMPT" --aspect_ratio 9:16 --wait --wait-
 [ -n "$REF_ID" ] && ARGS+=(--medias "$REF_ID")
 
 RESULT=$(higgs --json generate create "${ARGS[@]}")
-JOB_ID=$(echo "$RESULT" | jq -r '.id')
-URL=$(echo "$RESULT" | jq -r '.result_url')
+EXIT=$?
+JOB_ID=$(echo "$RESULT" | jq -r '.id // "N/A"')
+URL=$(echo "$RESULT" | jq -r '.result_url // ""')
 
 echo "$JOB_ID" > runs/$RUN_ID/shot-$NN/still-job-id.txt
 echo "$URL" > runs/$RUN_ID/shot-$NN/still-url.txt
+echo "[$(TS)] GEN       shot=$NN model=soul_cinematic aspect=9:16 job=$JOB_ID kind=still → exit=$EXIT" >> "$RUN_DIR/commands.log"
+
 curl -sL "$URL" -o runs/$RUN_ID/shot-$NN/still.png
+echo "[$(TS)] DL        shot=$NN kind=still → exit=$?" >> "$RUN_DIR/commands.log"
 ```
 
 Stills can be done sequentially (cheap, fast) or in parallel via tab background (faster but more bash gymnastics — sequential is fine for 5 shots).
@@ -111,13 +141,16 @@ RESULT=$(higgs --json generate create cinematic_studio_3_0 \
   --aspect_ratio 9:16 \
   --duration 5 \
   --wait --wait-timeout 15m)
-
-JOB_ID=$(echo "$RESULT" | jq -r '.id')
-URL=$(echo "$RESULT" | jq -r '.result_url')
+EXIT=$?
+JOB_ID=$(echo "$RESULT" | jq -r '.id // "N/A"')
+URL=$(echo "$RESULT" | jq -r '.result_url // ""')
 
 echo "$JOB_ID" > runs/$RUN_ID/shot-$NN/video-job-id.txt
 echo "$URL" > runs/$RUN_ID/shot-$NN/video-url.txt
+echo "[$(TS)] GEN       shot=$NN model=cinematic_studio_3_0 aspect=9:16 dur=5 from-still=$STILL_JOB job=$JOB_ID kind=video → exit=$EXIT" >> "$RUN_DIR/commands.log"
+
 curl -sL "$URL" -o runs/$RUN_ID/shot-$NN/take-1.mp4
+echo "[$(TS)] DL        shot=$NN kind=video → exit=$?" >> "$RUN_DIR/commands.log"
 ln -sf take-1.mp4 runs/$RUN_ID/shot-$NN/take-best.mp4
 ```
 
@@ -166,6 +199,9 @@ runs/<RUN_ID>/
 ├── brief.md
 ├── shotlist.json
 ├── cost-log.json
+├── commands.log                    ← every higgs invocation (audit trail)
+├── models-available-image.txt      ← snapshot of `higgs model list --image` at run start
+├── models-available-video.txt      ← snapshot of `higgs model list --video` at run start
 ├── pattern.txt           ← "product-reel"
 ├── reference-upload-id.txt   (if product image was provided)
 ├── shot-{01..NN}/

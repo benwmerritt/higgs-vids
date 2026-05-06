@@ -31,8 +31,11 @@ Single source of truth for which `higgs` command does what. The agent loads this
 |---|---|
 | `higgs model list` | Browse all 35 models |
 | `higgs model list --image` / `--video` | Filter by media type |
+| `higgs --json model list --image` | Run at the start of every pattern; output goes to `<run-dir>/models-available.txt` and confirms required models exist (per `output-management.md`) |
 | `higgs --json model get <name>` | Get the model's full param schema (machine-readable) |
 | `higgs model get <name>` | Same, human-readable table |
+
+> **The CLI is authoritative — static docs are hints.** `references/model-selection-guide.md` lists models, but Higgsfield ships and deprecates models constantly. Every pattern's Step 0 runs `higgs --json model list` and verifies the models the pattern wants are still present. If a model is missing → stop + tell the user. If new models appear that this guide doesn't mention → surface them as informational.
 
 ## Cost preflight (free, always run before spending)
 

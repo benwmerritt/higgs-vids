@@ -49,14 +49,24 @@ runs/<YYYY-MM-DD>-<brand>-carousel-<seq>/
 
 ## The recipe
 
-### Step 0 — Pre-flight + tooling guardrails
+### Step 0 — Pre-flight + observability + tooling guardrails
 
-Per `references/cost-discipline.md` + `references/agent-tooling-rules.md`:
+Use the canonical run-init snippet from `references/output-management.md` § commands.log. For carousel-post the required models are:
 
 ```bash
-higgs --json account status   # auth + balance
-higgs --json workspace status # billing context
+PATTERN=carousel
+REQUIRED_MODELS=("soul_cinematic")   # image-only pattern
+MODEL_FILTER="--image"
 ```
+
+This initialises:
+- `<run-dir>/commands.log` (audit trail of every higgs invocation)
+- `<run-dir>/models-available.txt` (snapshot of `higgs --json model list --image`)
+- `START`, `PREFLIGHT`, `MODELS`, `CHECK soul_cinematic` lines in commands.log
+
+If `soul_cinematic` is missing → stop, surface to user. If new image models appear → mention informationally.
+
+Per `references/cost-discipline.md` + `references/agent-tooling-rules.md`:
 
 **Hard rules for this run (re-read these every invocation):**
 - ❌ Don't open a browser to view images. Use the Read tool — it has vision.
@@ -65,6 +75,7 @@ higgs --json workspace status # billing context
 - ❌ Don't generate HTML index files. Output is PNGs the user posts.
 - ❌ Don't generate one big stitched scrolling preview image. Each slide is its own file.
 - ❌ Don't write anything to the repo root.
+- ✅ Every `higgs` invocation in this run appends a line to `<run-dir>/commands.log` (GEN / DL / RETRY / FAIL / END).
 
 ### Step 1 — Load brand context
 

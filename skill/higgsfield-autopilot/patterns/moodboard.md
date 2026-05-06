@@ -41,17 +41,30 @@ Examples: `runs/2026-05-06-ben-moodboard-1/`, `runs/2026-05-07-acme-moodboard-3/
 
 ## The recipe
 
-### Step 0 — Pre-flight + tooling guardrails
+### Step 0 — Pre-flight + observability + tooling guardrails
+
+Use the canonical run-init snippet from `references/output-management.md` § commands.log. For moodboard the required models are:
 
 ```bash
-higgs --json account status   # auth + balance
-higgs --json workspace status # billing context
+PATTERN=moodboard
+REQUIRED_MODELS=("soul_cinematic")          # image-only pattern
+MODEL_FILTER="--image"
 ```
+
+This initialises:
+- `<run-dir>/commands.log` (the audit trail)
+- `<run-dir>/models-available.txt` (snapshot of `higgs --json model list --image`)
+- `START`, `PREFLIGHT`, `MODELS`, `CHECK soul_cinematic` lines in commands.log
+
+If `soul_cinematic` is missing from the live model list → stop. Surface to user.
+
+If new image models are listed that aren't in `references/model-selection-guide.md` → mention them informationally (don't block).
 
 **Hard rules** (per `references/agent-tooling-rules.md`):
 - ❌ No browser opening, no Playwright MCP, no other skills loaded mid-pattern
 - ❌ No HTML output, no stitched scrollable preview image
 - ❌ Never write to repo root — everything in `<run-dir>/`
+- ✅ Every subsequent `higgs` invocation in this run appends a line to `<run-dir>/commands.log` (GEN / DL / UPLOAD / COMPOSE / RETRY / FAIL / END)
 
 ### Step 1 — Load brand context
 
@@ -131,11 +144,15 @@ ARGS=(soul_cinematic --prompt "$FULL_PROMPT" --aspect_ratio 16:9 --wait --wait-t
 [ -n "$SOUL_ID" ] && [ "$SLOT_HAS_PERSON" = "yes" ] && ARGS+=(--soul-id "$SOUL_ID")
 
 RESULT=$(higgs --json generate create "${ARGS[@]}")
-JOB_ID=$(echo "$RESULT" | jq -r '.id')
-URL=$(echo "$RESULT" | jq -r '.result_url')
+EXIT=$?
+JOB_ID=$(echo "$RESULT" | jq -r '.id // "N/A"')
+URL=$(echo "$RESULT" | jq -r '.result_url // ""')
 echo "$JOB_ID" > <run-dir>/shot-01/job-id.txt
 echo "$URL" > <run-dir>/shot-01/url.txt
+echo "[$(TS)] GEN       shot=01 model=soul_cinematic aspect=16:9 job=$JOB_ID → exit=$EXIT" >> <run-dir>/commands.log
+
 curl -sL "$URL" -o <run-dir>/shot-01/image.png
+echo "[$(TS)] DL        shot=01 url=$URL → exit=$? size=$(du -h <run-dir>/shot-01/image.png | cut -f1)" >> <run-dir>/commands.log
 ```
 
 **Aspect ratio default for moodboards: 16:9** (wide hero) — overrides per slot if needed (vertical for some details, square for tight crops).
@@ -186,7 +203,15 @@ for i in $(seq 2 $IMAGE_COUNT); do
   ASPECT=$(get_slot_aspect $i)
 
   RESULT=$(higgs --json generate create soul_cinematic --prompt "$FULL_PROMPT" --aspect_ratio "$ASPECT" --wait)
-  # Save job-id, url, download to image.png
+  EXIT=$?
+  JOB_ID=$(echo "$RESULT" | jq -r '.id // "N/A"')
+  URL=$(echo "$RESULT" | jq -r '.result_url // ""')
+  echo "$JOB_ID" > <run-dir>/shot-$ID/job-id.txt
+  echo "$URL" > <run-dir>/shot-$ID/url.txt
+  echo "[$(TS)] GEN       shot=$ID model=soul_cinematic aspect=$ASPECT job=$JOB_ID → exit=$EXIT" >> <run-dir>/commands.log
+
+  curl -sL "$URL" -o <run-dir>/shot-$ID/image.png
+  echo "[$(TS)] DL        shot=$ID → exit=$?" >> <run-dir>/commands.log
 done
 ```
 
@@ -224,6 +249,7 @@ python3 skill/higgsfield-autopilot/scripts/compose-moodboard.py \
   --brand <brand> \
   --client "<client name or '[Client Name]'>" \
   --output <run-dir>/deliverables/moodboard.png
+echo "[$(TS)] COMPOSE   compose-moodboard.py → exit=$? output=deliverables/moodboard.png" >> <run-dir>/commands.log
 ```
 
 This produces:
@@ -274,7 +300,13 @@ If the composer script fails (Pillow missing, font lookup error, etc.), surface 
 
 ### Step 11 — Cost ledger + report
 
-Update `<run-dir>/cost-log.json` and `runs/cost-summary.json` per `references/output-management.md`.
+Update `<run-dir>/cost-log.json` and `runs/cost-summary.json` per `references/output-management.md`. Close the audit log:
+
+```bash
+BAL_AFTER=$(higgs --json account status | jq -r '.credits')
+ACTUAL=$(echo "$BAL_BEFORE - $BAL_AFTER" | bc)
+echo "[$(TS)] END       shots=$IMAGE_COUNT actual_spend=$ACTUAL failures=$FAIL_COUNT" >> <run-dir>/commands.log
+```
 
 Tell the user:
 
@@ -312,6 +344,8 @@ runs/<YYYY-MM-DD>-<brand>-moodboard-<seq>/
 ├── direction-draft.md              ← creative-direction copy (in brand voice)
 ├── pattern.txt                     ← "moodboard"
 ├── cost-log.json
+├── commands.log                    ← every higgs invocation (audit trail)
+├── models-available.txt            ← snapshot of `higgs model list --image` at run start
 ├── palette.md                      ← observed dominant colours
 ├── shot-01/
 │   ├── prompt.txt

@@ -44,9 +44,22 @@ The agent should ask the user once when this pattern starts: "Generate native pe
 
 ## Steps
 
-### 0. Pre-flight + clarify approach
+### 0. Pre-flight + observability + live model check + clarify approach
+
+Use the canonical run-init snippet from `references/output-management.md` § commands.log:
+
+```bash
+PATTERN=multi-platform-render
+REQUIRED_IMAGE_MODELS=("soul_cinematic")
+# Add video models only if user picks video variant:
+# REQUIRED_VIDEO_MODELS=("kling2_6")  # or cinematic_studio_3_0 for mid tier
+```
+
+This initialises `<run-dir>/commands.log` + `<run-dir>/models-available.txt` and writes START / PREFLIGHT / MODELS / CHECK lines. If any required model is missing → stop.
 
 Per cost-discipline: confirm workspace, balance, and ask the native-vs-crop question.
+
+Every subsequent `higgs` invocation appends a line to `commands.log` (GEN / DL / END).
 
 ### 1. Build one shared prompt
 
@@ -124,6 +137,8 @@ runs/<RUN_ID>/
 ├── concept.txt
 ├── pattern.txt           ← "multi-platform-render"
 ├── cost-log.json
+├── commands.log                    ← every higgs invocation (audit trail)
+├── models-available.txt            ← snapshot of `higgs model list --image` at run start
 ├── 9x16/render.png  (or .mp4)
 ├── 1x1/render.png
 ├── 16x9/render.png

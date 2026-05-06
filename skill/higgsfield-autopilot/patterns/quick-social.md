@@ -31,7 +31,23 @@ Always run `higgs generate cost` per `references/cost-discipline.md` to confirm.
 
 ## Steps
 
-### 0. Pre-flight (same as product-reel step 0)
+### 0. Pre-flight + observability + live model check
+
+Use the canonical run-init snippet from `references/output-management.md` § commands.log. Required models depend on variant:
+
+```bash
+PATTERN=quick-social
+REQUIRED_IMAGE_MODELS=("soul_cinematic")
+# Only check video models if user wants the short-video variant:
+[ "$VARIANT" = "short-video" ] || [ "$VARIANT" = "3-shot-mini-reel" ] && REQUIRED_VIDEO_MODELS=("kling2_6")
+```
+
+This initialises:
+- `<run-dir>/commands.log` (audit trail)
+- `<run-dir>/models-available.txt` (saved `higgs model list --image`; `+ models-available-video.txt` if video variant)
+- `START`, `PREFLIGHT`, `MODELS`, `CHECK` lines
+
+If any required model is missing → stop, surface to user. Every subsequent `higgs` invocation appends a line to `commands.log` (GEN / DL / END).
 
 ### 1. Determine variant
 
@@ -93,6 +109,8 @@ runs/<RUN_ID>/
 ├── prompt.txt
 ├── pattern.txt           ← "quick-social"
 ├── cost-log.json
+├── commands.log                    ← every higgs invocation (audit trail)
+├── models-available.txt            ← snapshot of `higgs model list --image` at run start
 ├── still.png             (always)
 ├── clip.mp4              (if video variant)
 ├── reel-final.mp4        (if 3-shot mini-reel)

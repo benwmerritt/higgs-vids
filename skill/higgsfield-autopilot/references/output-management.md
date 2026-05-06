@@ -37,6 +37,8 @@ runs/2026-05-06-1430/
 ├── brief.md                       ← copy of the input brief (so it's self-contained)
 ├── shotlist.json                  ← agent-generated structured plan
 ├── cost-log.json                  ← per-run cost ledger (see cost-discipline.md)
+├── commands.log                   ← every higgs CLI invocation (timestamp + cmd + model + exit) — audit trail
+├── models-available.txt           ← higgs model list output captured at run start (snapshot of CLI truth)
 ├── pattern.txt                    ← the pattern name used (e.g. "product-reel")
 ├── shot-01/
 │   ├── prompt.txt                 ← exact prompt sent to Higgsfield
@@ -61,6 +63,117 @@ runs/2026-05-06-1430/
 - **Takes:** `take-1.mp4` … `take-N.mp4`. The "best" pick is **always a symlink** to the chosen take (`ln -sf take-3.mp4 take-best.mp4`).
 - **Stills vs videos:** extension reflects type. Don't put .png inside a folder named `video-shot-01`.
 - **Job IDs / URLs:** plain text files, one per line, no JSON wrapping (cheap to grep).
+
+## commands.log — the per-run audit trail
+
+Every pattern run keeps a single flat file `commands.log` capturing every `higgs` CLI invocation made during the run. Plain text (not JSON) so `grep` / `cat` work without tools. One event per line.
+
+### Format
+
+```
+[2026-05-07T14:23:01Z] START     pattern=moodboard brand=ben run=runs/2026-05-07-ben-moodboard-1
+[2026-05-07T14:23:03Z] PREFLIGHT higgs account status → exit=0 balance=248.9 plan=Starter
+[2026-05-07T14:23:04Z] MODELS    higgs model list --image → exit=0 (saved: models-available.txt, count=12)
+[2026-05-07T14:23:05Z] CHECK     soul_cinematic ✓ present
+[2026-05-07T14:23:15Z] GEN       shot=01 model=soul_cinematic aspect=16:9 job=abc123 → exit=0
+[2026-05-07T14:24:05Z] DL        shot=01 url=https://cdn.higgsfield.ai/... → exit=0 size=2.1MB
+[2026-05-07T14:26:30Z] GEN       shot=02 model=soul_cinematic aspect=4:5  job=def456 → exit=0
+[2026-05-07T14:31:12Z] COMPOSE   compose-moodboard.py → exit=0 output=deliverables/moodboard.png
+[2026-05-07T15:01:44Z] END       shots=9 actual_spend=1.1 failures=0
+```
+
+### Event types
+
+- `START` — first line of every run; pattern + brand + run dir
+- `PREFLIGHT` — auth/balance/workspace checks
+- `MODELS` — captured `higgs model list` (the snapshot lives in `models-available.txt`)
+- `CHECK` — per-model availability verification (✓ present / ✗ NOT FOUND)
+- `GEN` — every `higgs generate create` (record model name + job ID + exit)
+- `DL` — every download (curl / asset fetch)
+- `UPLOAD` — every `higgs upload create`
+- `COMPOSE` — composer scripts (compose-moodboard.py, assemble-video.py)
+- `RETRY` — second attempt after failure
+- `FAIL` — terminal failure for a shot
+- `END` — last line; final shot count + actual spend
+
+### Why text not JSON
+
+Ben's primary use: "what model was used for shot 3?" → `grep "shot=03" commands.log` gives the answer. JSON would need `jq` and parser knowledge. Plain text wins for an audit file you cat.
+
+### Canonical run-init snippet (every pattern's Step 0)
+
+Patterns reference this — it's the standard preamble before any spending:
+
+```bash
+# 1. Compute run dir
+RUN_DIR="runs/$(date +%Y-%m-%d)-${BRAND:-none}-${PATTERN}-${SEQ}"
+mkdir -p "$RUN_DIR"
+
+# 2. Initialise commands.log
+TS() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+echo "[$(TS)] START     pattern=$PATTERN brand=${BRAND:-none} run=$RUN_DIR" > "$RUN_DIR/commands.log"
+
+# 3. Preflight (auth + balance + workspace)
+ACC=$(higgs --json account status)
+BAL_BEFORE=$(echo "$ACC" | jq -r '.credits')
+PLAN=$(echo "$ACC" | jq -r '.plan // "unknown"')
+echo "[$(TS)] PREFLIGHT higgs account status → exit=0 balance=$BAL_BEFORE plan=$PLAN" >> "$RUN_DIR/commands.log"
+
+WS=$(higgs --json workspace status | jq -r '.name // "Private"')
+echo "[$(TS)] PREFLIGHT higgs workspace status → exit=0 workspace=$WS" >> "$RUN_DIR/commands.log"
+
+# 4. Live model check — CLI is the source of truth
+# Pick --image or --video based on pattern's media type. Patterns that need both run twice.
+higgs --json model list --image > "$RUN_DIR/models-available.txt"
+MODEL_COUNT=$(jq 'length' "$RUN_DIR/models-available.txt")
+echo "[$(TS)] MODELS    higgs model list --image → exit=0 (saved: models-available.txt, count=$MODEL_COUNT)" >> "$RUN_DIR/commands.log"
+
+# 5. Verify required models are present (replace REQUIRED_MODELS with the pattern's list)
+REQUIRED_MODELS=("soul_cinematic")
+for MODEL in "${REQUIRED_MODELS[@]}"; do
+  if jq -e --arg m "$MODEL" '.[] | select(.name == $m)' "$RUN_DIR/models-available.txt" > /dev/null; then
+    echo "[$(TS)] CHECK     $MODEL ✓ present" >> "$RUN_DIR/commands.log"
+  else
+    echo "[$(TS)] CHECK     $MODEL ✗ NOT FOUND — stopping" >> "$RUN_DIR/commands.log"
+    echo "ERROR: model '$MODEL' missing from higgs model list. See $RUN_DIR/models-available.txt." >&2
+    exit 1
+  fi
+done
+```
+
+### Logging GEN events
+
+Every `higgs generate create` call should log before+after. Inline pattern (do NOT use a wrapper script — `RESULT=$(...)` capture must stay clean):
+
+```bash
+RESULT=$(higgs --json generate create soul_cinematic --prompt "$P" --aspect_ratio 16:9 --wait)
+EXIT=$?
+JOB_ID=$(echo "$RESULT" | jq -r '.id // "N/A"')
+echo "[$(TS)] GEN       shot=$ID model=soul_cinematic aspect=16:9 job=$JOB_ID → exit=$EXIT" >> "$RUN_DIR/commands.log"
+```
+
+### END line
+
+Close the run before reporting to the user:
+
+```bash
+BAL_AFTER=$(higgs --json account status | jq -r '.credits')
+ACTUAL=$(echo "$BAL_BEFORE - $BAL_AFTER" | bc)
+echo "[$(TS)] END       shots=$SHOT_COUNT actual_spend=$ACTUAL failures=$FAIL_COUNT" >> "$RUN_DIR/commands.log"
+```
+
+### Reading the log later
+
+```bash
+# What model did I use for each shot?
+grep "GEN" runs/2026-05-07-ben-moodboard-1/commands.log
+
+# What was the total spend (from the END line)?
+grep "END" runs/2026-05-07-ben-moodboard-1/commands.log
+
+# Did any shot retry?
+grep -E "RETRY|FAIL" runs/2026-05-07-ben-moodboard-1/commands.log
+```
 
 ## Resumption
 

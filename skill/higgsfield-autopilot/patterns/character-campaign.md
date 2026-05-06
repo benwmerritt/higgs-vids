@@ -35,9 +35,22 @@ Plus the campaign brief (multi-shot concept).
 
 ## Steps
 
-### 0. Pre-flight (per `references/cost-discipline.md`)
+### 0. Pre-flight + observability + live model check
 
-Confirm auth, balance, workspace.
+Use the canonical run-init snippet from `references/output-management.md` § commands.log:
+
+```bash
+PATTERN=character-campaign
+REQUIRED_IMAGE_MODELS=("text2image_soul_v2")              # Soul ID image generation
+REQUIRED_VIDEO_MODELS=("cinematic_studio_3_0")            # downstream video (mid-tier default)
+# soul-id is a separate command, not a model — its presence is verified by `higgs soul-id --help` if needed
+```
+
+This initialises `<run-dir>/commands.log` + `<run-dir>/models-available.txt` (image and video lists), writes START / PREFLIGHT / MODELS / CHECK lines.
+
+If any required model is missing → stop. Particularly important here: `text2image_soul_v2` is the model that consumes `--soul-id` UUIDs. If it's been renamed or deprecated (Soul 3.0 is rumoured), `higgs model list --image` will surface the replacement; check the model list before training a Soul ID.
+
+Every subsequent `higgs` invocation appends a line to `commands.log` (UPLOAD / GEN / DL / and `SOULID-TRAIN` / `SOULID-WAIT` for Soul ID phases / END).
 
 ### 1. Decide character source
 
@@ -143,6 +156,9 @@ Same as `patterns/product-reel.md`, plus:
 runs/<RUN_ID>/
 ├── soul-id.txt                    ← UUID of Soul ID used (trained or reused)
 ├── soul-training-cost.txt         ← (if trained) credit delta from training
+├── commands.log                   ← every higgs invocation (audit trail; includes SOULID-TRAIN / SOULID-WAIT)
+├── models-available-image.txt     ← snapshot of `higgs model list --image`
+├── models-available-video.txt     ← snapshot of `higgs model list --video`
 └── ... (rest same as product-reel.md)
 ```
 

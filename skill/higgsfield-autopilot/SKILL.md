@@ -202,7 +202,9 @@ These rules supersede earlier guidance:
 
 - **Narrate as you go.** One short line per major step ("Reading brief", "Cost preflight: 612 credits estimated", "Generating shot 3 of 5"). The user is watching.
 - **Save state aggressively.** Every prompt, job ID, result URL goes to disk under `runs/<RUN_ID>/`. Resumption depends on it.
-- **Cite your sources.** When you make a model choice, mention which reference rule drove it ("per `model-selection-guide.md`, defaulting to soul_cinematic for stills").
+- **Log every `higgs` invocation to `<run-dir>/commands.log`.** One flat audit file per run capturing timestamp, command, model, job ID, exit code. Format + canonical run-init snippet are in `references/output-management.md` § commands.log. Ben must be able to `grep "GEN" commands.log` to see which model was used for each shot — without this, runs are unauditable.
+- **Run `higgs --json model list` at every pattern's Step 0.** Save to `<run-dir>/models-available.txt` and verify the pattern's required models are still in the list before spending. The CLI is the source of truth; `references/model-selection-guide.md` is a hint. If a model is missing → stop + tell user. If new models appear → note them informationally.
+- **Cite your sources.** When you make a model choice, mention which reference rule drove it ("per `model-selection-guide.md`, defaulting to soul_cinematic for stills") AND that the live model list confirmed availability.
 - **Report failures honestly.** "Shot 3 failed (Higgsfield returned error X), continuing with 4 shots" is better than silently dropping a shot.
 - **Use `--json`** when piping `higgs` output into bash. The human-readable tables break parsers.
 

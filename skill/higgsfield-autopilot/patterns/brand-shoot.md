@@ -63,9 +63,20 @@ This shows the user what the backend would actually submit. They can refine inte
 
 ## Steps
 
-### 0. Pre-flight (per `references/cost-discipline.md`)
+### 0. Pre-flight + observability + live model check
 
-Auth, balance, workspace.
+Use the canonical run-init snippet from `references/output-management.md` § commands.log:
+
+```bash
+PATTERN=brand-shoot
+REQUIRED_IMAGE_MODELS=("gpt_image_2")   # backend model used by product-photoshoot
+```
+
+This initialises `<run-dir>/commands.log` + `<run-dir>/models-available.txt`, writes START / PREFLIGHT / MODELS / CHECK lines. Auth, balance, workspace per `references/cost-discipline.md`.
+
+Note: `product-photoshoot create` doesn't take a model param directly — the backend routes to `gpt_image_2`. The model list check confirms the backend route is still available. If `gpt_image_2` is missing → stop, report.
+
+Every subsequent `higgs` invocation appends a line to `commands.log` (UPLOAD / GEN / DL / END).
 
 ### 1. Pick mode
 
@@ -166,6 +177,8 @@ runs/<RUN_ID>/
 ├── brief.md
 ├── pattern.txt                ← "brand-shoot"
 ├── cost-log.json
+├── commands.log                    ← every higgs invocation (audit trail)
+├── models-available.txt            ← snapshot of `higgs model list --image` at run start
 ├── product-upload-id.txt
 ├── enhanced-prompt.txt        ← from --enhance-only step (great audit artifact)
 ├── variants/

@@ -42,9 +42,20 @@ Each generated image is `nano_banana_2` rack rate (~150 credits per image). On p
 
 ## Steps
 
-### 0. Pre-flight (per `references/cost-discipline.md`)
+### 0. Pre-flight + observability + live model check
 
-Auth, balance, workspace. Read live plan name (display only).
+Use the canonical run-init snippet from `references/output-management.md` § commands.log:
+
+```bash
+PATTERN=ecom-listing
+REQUIRED_IMAGE_MODELS=("nano_banana_2")   # backend model used by marketplace-cards
+```
+
+This initialises `<run-dir>/commands.log` + `<run-dir>/models-available.txt`, writes START / PREFLIGHT / MODELS / CHECK lines. Auth, balance, workspace per `references/cost-discipline.md`. Read live plan name (display only).
+
+Note: `marketplace-cards create` doesn't take a model param — backend routes to `nano_banana_2`. The model list check confirms the backend route still resolves. If `nano_banana_2` is missing → stop, report.
+
+Every subsequent `higgs` invocation appends a line to `commands.log` (UPLOAD / GEN / DL / END).
 
 ### 1. Identify the marketplace + scope
 
@@ -149,6 +160,8 @@ runs/<RUN_ID>/
 ├── brief.md
 ├── pattern.txt           ← "ecom-listing"
 ├── cost-log.json
+├── commands.log                    ← every higgs invocation (audit trail)
+├── models-available.txt            ← snapshot of `higgs model list --image` at run start
 ├── product-upload-id.txt
 ├── listing/
 │   ├── main_image.png
