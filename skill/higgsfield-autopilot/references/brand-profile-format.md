@@ -27,7 +27,8 @@ brands/<name>/
 ```markdown
 ---
 name: ben
-type: personal_brand        # personal_brand | business | agency_client | fictional
+brand_type: personal_brand  # personal_brand | small_business | service_agency | creator | fictional
+type: personal_brand        # legacy — same as brand_type for back-compat
 created: 2026-05-06
 last_interview: 2026-05-06
 confidence:
@@ -37,6 +38,7 @@ confidence:
   visual: medium
   voice: high
   constraints: high
+  aesthetic_taste: high      # NEW — from "what content do you admire" question
 ---
 
 # Brand: Ben
@@ -138,6 +140,24 @@ Or: "long-form, conversational, lots of asides in parentheses."]
 [E.g. "hook line, beat, story-bit, payoff, soft CTA"
 Or: "single sentence with line breaks, no CTA, sometimes a question"]
 
+## Aesthetic taste references
+
+[From Territory 4.5 — what they admire and what they cringe at. Specific examples.]
+
+### Content they admire
+
+[Paths or URLs to specific posts they pointed at as "I'd be proud to make this".
+For each: 1-2 sentences on what works about it, in their words.]
+
+### Content they cringe at
+
+[The "what makes you cringe" answers. Specific patterns to actively avoid.
+Examples:
+- "AI-looking glossy product shots with no human in them"
+- "Captions that start with 'In today's world...'"
+- "Posts that beg for engagement"
+]
+
 ## Recurring talent
 
 ### People
@@ -163,6 +183,15 @@ Or: "single sentence with line breaks, no CTA, sometimes a question"]
 - Primary platforms: [IG, LinkedIn, etc.]
 - Cadence: [e.g. 3 posts/week IG, 1 post/week LinkedIn]
 - Format mix: [e.g. 60% carousel, 30% single, 10% reel]
+
+### Default cadence by brand type (from `references/calendar-defaults.md` if you don't have a specific one)
+
+| Brand type | Posts/week | Reels | Single | Carousel | Stories | Topic mix |
+|---|---|---|---|---|---|---|
+| personal_brand | 5-7 | 2-3 | 2 | 1-2 | daily | 40% educational / 30% personal / 20% promo / 10% entertaining |
+| small_business | 5-6 | 2 | 2-3 | 1 | daily | 50% promo / 30% educational / 10% entertaining / 10% personal |
+| service_agency | 4-5 | 1-2 | 1-2 | 1 | daily | 50% educational / 30% promo / 10% personal / 10% entertaining |
+| creator | 5-7 | varies | varies | varies | varies | format-led, follow trends |
 
 ## Constraints — never do
 

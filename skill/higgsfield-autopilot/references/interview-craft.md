@@ -20,6 +20,24 @@ Why it's good: the answer is unique. It surfaces what they care about, who they'
 
 The agent runs an interactive interview, **one question at a time**, adapting to what comes back. There's no fixed list — there's a set of *territories* to cover, in roughly this order. If the user has already answered a question implicitly in a prior answer, skip it. If the user's answer reveals a more interesting branch, follow it.
 
+### Territory 0 — Brand type (ask FIRST, then adapt the rest)
+
+Open with a single question that determines how the rest of the interview branches:
+
+> "Quick first thing — which of these is closest to what you're making content for?
+>   • a personal brand (one human, your opinions and expertise)
+>   • a small business with a product
+>   • a service business or agency (consultancy, coaching, agency work)
+>   • a content creator (entertainment-led, audience-first)"
+
+Save the answer as `brand_type` in the profile. The remaining territories adapt:
+- **personal_brand:** lean into the human's personal story, opinions, lived experience. Skip "company origin" — the brand is the person.
+- **small_business:** ask about product, customer journey, team. Less personal-story, more "what does this product solve for whom".
+- **service_agency:** ask about case studies, methodology, decision-makers (it's b2b — different audience model than consumer).
+- **creator:** ask about format affinity, audience interaction style, niche / vibe.
+
+If the user picks "all of these" or "I don't know", default to `personal_brand` and ask brand-type-specific questions opportunistically as they come up.
+
 ### Territory 1 — Who/what (the foundation)
 
 Open with something disarming and outcome-oriented:
@@ -64,6 +82,16 @@ This is where we save 30 minutes of asking. If the user has any of these, ask fo
 
 When fetched, **paraphrase what you learned back to the user** ("I see you write a lot about X, with a vocabulary of Y, and your most engaged posts seem to be about Z — true?"). They'll either confirm and you skip a chunk of the interview, or they'll correct you, which itself is information.
 
+### Territory 4.5 — Aesthetic taste via reference
+
+Before getting practical, ask one taste-revealing question:
+
+> "Show me content (yours, a competitor's, anyone's) that you'd be proud to make. What about it works? And on the other side — content in your space that makes you cringe. Why?"
+
+Listen for: the *specific* visual/copy patterns they admire, the specific things that put them off. This is one of the highest-information questions in the interview — it surfaces aesthetic taste, brand personality, and AI-content tells (if they cringe at "AI-looking content", that's a constraint we record).
+
+If they share URLs or paths to specific posts, fetch / inspect those — they're the strongest reference material we'll get.
+
 ### Territory 5 — Constraints and don'ts (often the most important)
 
 What we *won't* do is as defining as what we will. Ask:
@@ -107,6 +135,21 @@ If they correct anything, update and play back again. Don't save until they sign
 3. **Mine existing material before re-asking.** If they have a URL, fetch it first; questions become "is this still true?" instead of "what's true?".
 4. **Drill into vague answers.** "We're authentic" / "we care more" → keep asking until you have a specific story or opinion.
 5. **Mechanical questions last.** Logos, photo paths, platform list — last 3 minutes. Substance first.
+
+## AI-tells the agent must actively avoid in any generated output
+
+Per Ask Ads Marketing MCP knowledge (`docs/ask-rag/ask-ads-marketing-9q.md` Q5):
+
+The patterns that immediately mark content as AI-generated:
+- **Overly formal language / jargon** — "leverage", "utilize", "ecosystem", "elevate" — flag and replace with plain words
+- **Generic phrases** — "in today's fast-paced world", "in the realm of", "the power of" — refuse to use
+- **Predictable formulaic structure** — every caption opening with a hook formula, every CTA being "tap the link in bio" — vary deliberately
+- **Lack of spontaneity / humor** — captions that read like LinkedIn-posts-as-a-service. Add specific details, asides, line-break rhythm
+- **Closed questions or no questions** — "Are you ready to transform your business?" → bin. Open questions: "what would you change if you knew nobody would judge?"
+- **Symmetric emoji clusters at line ends** — gives away ChatGPT instantly
+- **CTAs on every post** — sometimes the post just is the post; no CTA needed
+
+The agent should treat these as hard constraints when generating captions, slide copy, or any user-facing text. Refuse to ship copy that fits any of these patterns.
 
 ## What the agent should NEVER do
 
