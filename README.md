@@ -1,171 +1,111 @@
 # Higgs Vids
 
-A **video production toolkit** for Claude Code (and any other AI coding agent that reads markdown). Drop a brief in, get back a delivered video.
+A video production toolkit for Claude Code. Tell the agent what you want; it uses your brand profile, the Higgsfield CLI, and a set of recipes to produce post-ready content (carousels, moodboards, reels, product photos, listings) — saved to a dated folder ready to share or post.
 
-Built on the official [Higgsfield CLI](https://github.com/higgsfield-ai/cli). No browser automation, no Playwright, no MCP — just a clean CLI + agent-readable skill files.
+Built on the official [Higgsfield CLI](https://github.com/higgsfield-ai/cli). MIT-licensed.
 
-## What it does
-
-You talk to your AI agent (Claude Code, Codex, Gemini CLI, OpenCode). The agent reads the brief, picks a production pattern (product-reel / quick-social / multi-platform-render / brand-shoot / e-com-listing / character-campaign), runs cost preflight, executes via the `higgs` CLI, downloads assets, ffmpeg-assembles, and hands you a deliverable bundle.
-
-## 5-minute setup
+## Setup (5 min, one-time)
 
 ```bash
-# 1. Install the Higgsfield CLI + ffmpeg + Pillow
-npm install -g @higgsfield/cli
-brew install ffmpeg                      # or apt install ffmpeg
+# Dependencies
+npm install -g @higgsfield/cli           # the Higgsfield CLI
+brew install ffmpeg                      # for reel patterns (or apt install ffmpeg)
 pip install Pillow                       # for moodboard composition
 
-# 2. Sign in to Higgsfield (opens browser for device-code, one-time)
+# Sign in (browser opens)
 higgs auth login
 
-# 3. (Recommended) Install the humanizer skill
-#    Adds a "de-AI" voice layer that runs before brand voice — copy reads as
-#    a human wrote it, not an AI. Without it, captions can leak AI tells.
-#    The toolkit auto-uses it when present.
-#    Install: see https://github.com/your-skill-host/humanizer or your skill manager.
-
-# 4. Clone this repo
-git clone <this-repo-url> higgs-vids
+# Clone + install
+git clone <repo-url> higgs-vids
 cd higgs-vids
+bash install.sh                          # symlinks skill + commands into ~/.claude/
 
-# 5. Install globally (recommended) — symlinks the skill + slash commands
-#    into ~/.claude/ so they work in ANY Claude Code session, not just here.
-#    Edits in this repo propagate immediately (symlinks, not copies).
-bash install.sh
-
-# 6. Open Claude Code anywhere. Then:
-/higgsfield-init                          # verifies setup, picks workspace
-/higgsfield-brand-create <yourname>       # one-time per brand — adaptive interview
-/higgsfield-make --brand <yourname> "topic for your post"
+# Open Claude Code (in any folder), then:
+/higgsfield-init
 ```
 
-That's it. The agent does the rest.
+`install.sh` symlinks the skill and slash commands into `~/.claude/` so they work in **any** Claude Code session, not just inside this repo. Edits in this repo propagate immediately. To remove the symlinks (repo stays intact): `bash uninstall.sh`.
 
-**Skip step 5** if you only want the skill / commands available when CWD is this repo (project-scoped fallback). For day-to-day use across client folders, install globally.
+Optional but recommended: install a "humanizer" skill if you have one — the toolkit applies it as a base voice layer so generated copy reads like a human wrote it before brand voice gets layered on.
 
-**To uninstall** (just removes the symlinks; repo stays intact): `bash uninstall.sh`
+## Slash commands
 
-## How to use it
+Type these in Claude Code. They auto-detect a brand profile when one applies.
 
-The toolkit is **agent-driven**. You write a brief, you talk to the agent, the agent does the work. You don't run CLI commands directly (unless you want to).
-
-## Two ways to use it
-
-### One-off content (no setup)
-
-A brief is a markdown file. One sentence is enough:
-
-```markdown
-# Brief: Coffee Shop Reel
-
-Make me a 5-shot 9:16 reel for a new specialty coffee shop opening Saturday.
-Warm wood and brass interior, single-origin pour-over, latte art close-ups.
-Inviting, "you should come visit" vibe.
-```
-
-Drop it in `skill/higgsfield-autopilot/briefs/`, then `/higgsfield-make briefs/coffee-shop-reel.md`. Generic-but-good output, no brand context.
-
-### Real content for a real brand (recommended for personal brands + businesses)
-
-```bash
-# One-time per brand — adaptive interview, optional channel fetch, optional Soul ID training
-/higgsfield-brand-create ben
-
-# Then run any pattern with full brand context applied
-/higgsfield-make --brand ben "5 things I'd unlearn from year one of running a studio"
-# → produces a 6-slide IG carousel + caption + hashtags, all in YOUR brand voice
-```
-
-The brand profile captures *who you are* — voice, audience, the specific thing that makes you non-substitutable, what you'd cringe at, your assets, your constraints. Once it's in, every future run for that brand uses it. Output stops being "AI made me content" and starts being "this is genuinely my content."
-
-Optional: build presets for the content types you make repeatedly:
-```bash
-/higgsfield-preset-create ben carousel-post   # save the frame; topic varies per run
-/higgsfield-make --preset ben-carousel-post "topic for this week's post"
-```
-
-The agent will:
-1. Verify your setup
-2. Expand the brief into a 5-shot plan
-3. Run cost preflight (free) → tell you the estimated spend
-4. Wait for your OK
-5. Generate stills + animate them via Higgsfield
-6. Download everything
-7. Assemble with ffmpeg
-8. Hand you `runs/<date>/deliverables/reel-final.mp4` + a cost report
-
-## What's in the box
-
-| Path | What |
-|---|---|
-| `AGENTS.md` | Agent's onboarding (read first if you're an AI) |
-| `.claude/commands/` | Slash commands: `/higgsfield-init`, `/higgsfield-make`, `/higgsfield-pattern`, `/higgsfield-test`, `/higgsfield-budget` |
-| `skill/higgsfield-autopilot/SKILL.md` | The agent's operating manual |
-| `skill/higgsfield-autopilot/patterns/` | 6 production patterns (3 full + 3 stubs) |
-| `skill/higgsfield-autopilot/briefs/` | Example briefs |
-| `skill/higgsfield-autopilot/references/` | CLI cheatsheet, model selection guide, cost discipline, prompting rules |
-| `skill/higgsfield-autopilot/test/` | Stage 1/2/3 verification (cost preview / single shot / full reel) |
-| `docs/research/` | Background research on Higgsfield's models, prompting, orchestration |
-| `findings/` | Origin story (the IG reel that inspired the project) |
-| `runs/` | Per-run outputs (gitignored) |
-
-## Patterns
-
-| Pattern | When | Cost |
+| Command | What it does | Spends credits? |
 |---|---|---|
-| `product-reel` | IG-ready 9:16 multi-shot reel | ~600–12,500 credits |
-| `quick-social` | Single still or short clip for daily posting | ~12–600 credits |
-| `multi-platform-render` | One concept, multiple aspects (9:16 + 1:1 + 16:9) | ~36–7,500 credits |
-| `brand-shoot` (stub) | Product photography batches | ~30–200 credits |
-| `ecom-listing` (stub) | Marketplace listing imagery | ~50–300 credits |
-| `character-campaign` (stub) | Recurring talent / brand mascot | varies |
+| `/higgsfield-init` | First-run health check: confirms CLI is installed and authed, picks active workspace, reports balance. Run once per machine. | No |
+| `/higgsfield-brand-create <name>` | Adaptive interview to build a brand profile. ~30 min. Captures voice, audience, visual DNA, do's and don'ts. Optionally fetches your existing channels and trains a Soul ID. Saves to `brands/<name>/`. | No (Soul ID training is opt-in) |
+| `/higgsfield-preset-create <brand> <recipe>` | Save a reusable shape for a content type, e.g. *"Ben's IG carousels are always 6 slides, 4:5, list-format"*. After this you can run that recipe by preset name. | No |
+| `/higgsfield-make "topic"` | Main entry. Agent reads your topic, picks the right recipe, generates the content. Add `--brand <name>` to apply a brand profile. Add `--preset <name>` to use a saved shape. | Yes |
+| `/higgsfield-pattern <name> "args"` | Run a specific recipe directly when you know which one you want. E.g. `/higgsfield-pattern moodboard --brand ben "yacht shoot"`. | Yes |
+| `/higgsfield-budget [path\|workspace]` | "What did I spend?" Reads cost logs across runs. No args = all-time total. With a path = that run only. With a workspace name = filter to that workspace. | No |
+| `/higgsfield-test <1\|2\|3>` | Verify the toolkit works. **Stage 1 = no credits** (preflight only), 2 = ~12 credits (one image), 3 = a full reel. | Stage-dependent |
 
-Stubs run a minimal CLI passthrough; full recipes land in v3.1.
+## Recipes (patterns)
+
+| Recipe | Use for | Typical actual cost on a paid plan |
+|---|---|---|
+| `carousel-post` | IG/LinkedIn carousel — 5-10 slides + caption + hashtags, all in your brand voice | ~0.6-1.2 credits |
+| `moodboard` | Pre-production / pitch-deck reference for a client. Composed branded PNG + PDF. | ~0.7-1.4 credits |
+| `quick-social` | Single still or short clip for daily posts | ~0.1-3 credits |
+| `multi-platform-render` | One concept rendered to multiple aspect ratios (9:16 + 1:1 + 16:9) | ~0.4-2 credits |
+| `brand-shoot` | Product photography batch — hero, lifestyle, virtual try-on, etc. | ~0.5-20 credits |
+| `ecom-listing` | Amazon / Etsy / Shopify listing imagery (main + secondary + A+) | ~1.5-20 credits |
+| `character-campaign` | Recurring talent / brand mascot using a trained Soul ID | varies |
+| `product-reel` | Multi-shot 9:16 video reel — stills + image-to-video + ffmpeg assembly | ~6-125 credits |
+
+These are estimates on a paid Higgsfield plan; rack rates run ~100× higher and the toolkit handles preflight + confirmation. See `skill/higgsfield-autopilot/references/cost-discipline.md` for how cost is actually measured (live balance deltas, not preflight estimates).
+
+## Where things live
+
+```
+brands/<name>/                ← your brand profiles + assets (gitignored)
+  profile.md                    voice, audience, visual DNA, constraints
+  assets/                       logos, photos of you, style guides
+  source-fetches/               cached scrapes of your existing channels
+presets/                      ← saved recipe shapes (gitignored)
+
+runs/<date>-<brand>-<recipe>/ ← every run, dated and labelled (gitignored)
+  shot-NN/                      per-shot prompts, URLs, images, agent reviews
+  deliverables/                 ← what you actually post / send to clients
+
+skill/higgsfield-autopilot/   ← the toolkit — agent reads this
+  SKILL.md                      operating manual
+  patterns/                     recipes
+  references/                   how-to docs the agent loads
+  scripts/                      ffmpeg + Pillow helpers
+  test/                         verification stages
+
+docs/                         ← background research + MCP knowledge artefacts
+findings/                     ← origin story + empirical findings
+```
+
+The agent always tells you the deliverable path at the end of a run. Everything important is in `runs/<date>-<brand>-<recipe>/deliverables/`.
 
 ## Cost discipline
 
-Real money is at stake. The agent always:
-1. Preflights cost (free `higgs generate cost` calls)
-2. Reports the estimate
-3. For >200 credits, asks explicit confirmation
-4. Logs every spend to `runs/<date>/cost-log.json`
+Real money is at stake. The toolkit:
 
-You can audit any past run: `/higgsfield-budget runs/2026-05-06-1430`. Or query workspace totals: `/higgsfield-budget Acme`.
+1. Always **preflights** before spending (`higgs generate cost`, free).
+2. **Reports the estimate** to you.
+3. **Asks before spending** if the estimate is significant.
+4. **Measures actual spend** by reading your `higgs account status` balance before and after — not by trusting the preflight number.
+5. **Logs every run** to `runs/<date>-<brand>-<recipe>/cost-log.json`.
 
-## Multi-client / agency use
-
-If you have multiple Higgsfield workspaces (one per client), set the active workspace before each run:
-
-```bash
-higgs workspace list                      # see options
-higgs workspace set <id>                   # switch
-```
-
-The agent checks the active workspace at the start of every spending pattern. If it doesn't match what your brief implies, the agent stops and asks.
+Higgsfield's CLI is currently plan-blind: `generate cost` returns rack rate even if your subscription absorbs 99% of it. The toolkit handles that gap by relying on the live balance delta as ground truth.
 
 ## Cross-agent compatibility
 
-Same toolkit works in:
+The skill is plain markdown + bash. Slash commands are Claude Code UX sugar. The same toolkit works in:
+
 - **Claude Code** — slash commands native
-- **Codex** — `Read AGENTS.md and execute the toolkit on briefs/X.md`
-- **Gemini CLI** — same
-- **OpenCode** — same
-
-The slash commands are Claude-Code-specific UX sugar. The underlying skill is plain markdown + bash invocations of `higgs` — works anywhere.
-
-## Test it without spending
-
-```bash
-/higgsfield-test 1                         # 0 credits — verifies cost preflight, brief expansion, model selection
-```
-
-Then when you're confident, `/higgsfield-test 2` (~12 credits, single still) and `/higgsfield-test 3` (~1k–12k credits, full reel).
-
-## License
-
-MIT. See `LICENSE`. Built on top of the [Higgsfield CLI](https://github.com/higgsfield-ai/cli) (also MIT). Higgsfield's underlying generation models are commercial — credits cost real money.
+- **Codex / Gemini CLI / OpenCode** — point the agent at `AGENTS.md` and instruct via natural language
 
 ## Origin
 
-This started as a reverse-engineering project of Timothée Oranger's "Claude autopilot for Higgsfield" Instagram reel (`DXfKnWhDPlW`). The reel claimed "15 agents + Playwright MCP". Frame analysis revealed it was actually a Playwright Python script pipeline. We built v1 (Python pipeline), then v2 (Playwright MCP), then deleted both when Higgsfield released their official CLI on 2026-05-04. v3 is the keeper. See `findings/instagram-reel-DXfKnWhDPlW-workflow.md` for the full story.
+Started as a reverse-engineering project of an Instagram reel claiming "Claude autopilot for Higgsfield" via 15 agents and Playwright MCP. Frame analysis revealed it was actually a Playwright Python pipeline. v1 reproduced that. v2 replaced it with Playwright MCP (cleaner, but Higgsfield's UA sniffer blocked our browser). v3 deleted both when Higgsfield released their official CLI on 2026-05-04 — and built a real video-business toolkit on top instead. See `findings/instagram-reel-DXfKnWhDPlW-workflow.md` for the full story.
+
+## License
+
+MIT. The Higgsfield CLI is also MIT. Higgsfield's underlying generation models are commercial — credits cost real money. The toolkit's job is to spend them carefully on your behalf.
