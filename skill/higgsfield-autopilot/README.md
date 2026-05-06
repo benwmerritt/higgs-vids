@@ -30,7 +30,9 @@ briefs/
   README.md                 ← Brief format guide
   example-{product-reel,quick-social,multi-platform,retro-futuristic}.md
 scripts/
-  assemble-video.py         ← ffmpeg concat helper (the only script the agent calls)
+  assemble-video.py         ← ffmpeg concat helper (used by reel patterns)
+  compose-moodboard.py      ← Pillow image composer (used by moodboard pattern)
+                              # Deps: ffmpeg (assemble-video.py), Pillow (compose-moodboard.py)
 test/
   README.md                 ← Verification harness overview
   stage-1.md                ← Cost preview only (0 credits)

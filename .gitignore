@@ -1,96 +1,51 @@
-# ─── Downloaded video assets ──────────────────────────────
-# Ignore raw video files in downloads/ but keep transcripts/metadata so
-# research artefacts stay in version control.
-*.mp4
-*.png
-*.mkv
-*.webm
-*.m4a
-*.mp3
-*.wav
-frames/
-
-# ─── Higgsfield autopilot artefacts ───────────────────────
-# Per-run outputs (assets, intermediate files, final.mp4).
+# ─── Run outputs (generated content) ──────────────────────
 runs/
 skill/**/runs/
 
-# Claude things
-.claude/settings.local.json
-
-
-# Brand profiles + presets — contain real photos, voice samples, possibly private business info.
-# Users who want to commit a public brand kit can override per-folder with a !brands/<name>/ rule.
+# ─── Brand profiles + presets (private — real assets) ─────
+# To share a public brand kit, override per-folder:
+#   !brands/<name>/profile.md
 brands/
 presets/
 
-# Anywhere in the tree, ignore large media binaries by default
+# ─── Media binaries (defense-in-depth) ────────────────────
+# If the agent ever slips and writes outside a run dir, this catches it.
+# To commit a doc image, add an exception:
+#   !docs/**/*.png
 *.mp4
+*.mov
 *.mkv
 *.webm
-*.mov
 *.avi
+*.m4a
+*.mp3
+*.wav
+*.png
+*.jpg
+*.jpeg
 
-# ─── OS cruft ─────────────────────────────────────────────
+# ─── Downloaded research artefacts ────────────────────────
+downloads/frames/
+
+# ─── Claude Code local config ─────────────────────────────
+.claude/settings.local.json
+.claude/.DS_Store
+
+# ─── OS / editor cruft ────────────────────────────────────
 .DS_Store
-.DS_Store?
 ._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-desktop.ini
-
-# ─── Editor / IDE ─────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
-*.swo
 *~
-.project
-.classpath
-.settings/
-
-# ─── Python ───────────────────────────────────────────────
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-.venv/
-env/
-.env
-.env.local
-.env.*.local
-pip-log.txt
-pip-delete-this-directory.txt
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# ─── Node ─────────────────────────────────────────────────
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-.pnp.*
-dist/
-build/
-
-# ─── Logs & temp ──────────────────────────────────────────
-*.log
-logs/
-tmp/
-temp/
-*.tmp
-*.bak
 
 # ─── Secrets ──────────────────────────────────────────────
+.env
+.env.local
 *.pem
 *.key
 secrets/
 credentials.json
+
+# ─── Logs ─────────────────────────────────────────────────
+*.log

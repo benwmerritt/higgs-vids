@@ -214,12 +214,38 @@ Derived from the moodboard images:
 
 Use vision via Read tool to estimate dominants from each image; aggregate the most common across the set.
 
-### Step 10 — Assemble the presentation bundle
+### Step 10 — Compose the deliverable moodboard (PNG + PDF)
+
+The headline deliverable is a single composed, branded moodboard image — not a folder of references. Use the composer script:
 
 ```bash
-mkdir -p <run-dir>/deliverables
-for i in $(seq -f "%02g" 1 $IMAGE_COUNT); do
-  cp <run-dir>/shot-$i/image.png <run-dir>/deliverables/image-$i.png
+python3 skill/higgsfield-autopilot/scripts/compose-moodboard.py \
+  --run-dir <run-dir> \
+  --brand <brand> \
+  --client "<client name or '[Client Name]'>" \
+  --output <run-dir>/deliverables/moodboard.png
+```
+
+This produces:
+- `<run-dir>/deliverables/moodboard.png` — composed, branded, ready to send (2400×3200, ~5 MB)
+- `<run-dir>/deliverables/moodboard.pdf` — same content as PDF (auto-generated alongside the PNG, ~500 KB, email-friendly)
+
+The composer reads:
+- `<run-dir>/structure.json` (slot order)
+- `<run-dir>/shot-NN/image.png` + `treatment.txt` (each generated image + its label)
+- `<run-dir>/direction-draft.md` (creative direction copy → typeset on the moodboard)
+- `<run-dir>/palette.md` (extracted palette → swatch strip)
+- `brands/<brand>/profile.md` (brand name → header)
+- `brands/<brand>/assets/logos/primary.png` (brand mark → top-left of moodboard, falls back to brand-name text if no logo)
+
+**No additional image generation.** This is local image composition (Pillow), 0 credits.
+
+Then copy the source images alongside, so the client can request individual shots if needed:
+
+```bash
+for i in $(ls <run-dir>/shot-*/image.png); do
+  ID=$(basename $(dirname "$i") | sed 's/shot-//')
+  cp "$i" <run-dir>/deliverables/image-$ID.png
 done
 cp <run-dir>/direction-draft.md <run-dir>/deliverables/creative-direction.md
 cp <run-dir>/palette.md <run-dir>/deliverables/
@@ -227,35 +253,24 @@ cp <run-dir>/palette.md <run-dir>/deliverables/
 cat > <run-dir>/deliverables/README.md <<EOF
 # Moodboard — <concept>
 
+## Headline deliverable
+- **moodboard.png** — composed, branded — open and present.
+- **moodboard.pdf** — same, email-friendly.
+
+## Source assets (for the curious / refining)
+- creative-direction.md — the vision in brand voice
+- palette.md — colour reference
+- image-01.png ... image-NN.png — individual generated images, ordered
+
 For: <client name>
 Brand: <brand>
 Date: <YYYY-MM-DD>
-Generated: <image count> images, $ASPECT_MIX aspects
+Generated: <image count> images
 Total cost: <actual credits>
-
-## Files
-
-- creative-direction.md — the vision + treatment angles (read this first)
-- palette.md — colour reference observed from the set
-- image-01.png ... image-NN.png — the moodboard images, ordered hero → mid → detail
-
-## Presenting to a client
-
-Recommended layout (for Keynote / Figma / PDF):
-
-1. Cover: brand mark + concept name + date
-2. Vision: the creative-direction copy
-3. Hero spread: image-01 + image-02 (the wides, side by side)
-4. Treatment grid: lifestyle (image-03) + detail (image-04, image-05) + atmospheric (image-06)
-5. Close-up beats: image-07, image-08
-6. Range / alternative: image-09 (the alt-palette/time hero)
-7. Palette summary: from palette.md
-
-Don't include this README in the client-facing deck — it's for your reference.
 EOF
 ```
 
-**No HTML, no auto-generated slide deck, no combined preview image.** Hand the user the assets; they assemble the deck in their own tool (Keynote, Figma, Canva, etc.).
+If the composer script fails (Pillow missing, font lookup error, etc.), surface to user with the exact error — DON'T fall back to HTML or ffmpeg. The fix is to install Pillow (`pip install Pillow`) or update the script, not to invent an alternative.
 
 ### Step 11 — Cost ledger + report
 
@@ -281,12 +296,13 @@ Suggested layout in deliverables/README.md.
 
 ## What this pattern explicitly does NOT do
 
-- ❌ No HTML / web mockup / scrollable layout
-- ❌ No auto-generated slide deck (Keynote/PDF) — the user owns the deck assembly
-- ❌ No stitched preview image
-- ❌ No browser opening (Read tool only)
+- ❌ No HTML / web mockup / scrollable layout (output is PNG/PDF)
+- ❌ No browser opening, no Playwright (use Read tool to inspect images)
+- ❌ No ffmpeg (wrong tool — that's for video)
+- ❌ No "lazy stitched preview" (concatenating PNGs into one tall blob with no design intent)
 - ❌ No video generation (image-only — keep it cheap)
 - ❌ No fire-the-batch-and-pray (calibration mandatory)
+- ✅ **DO** use `compose-moodboard.py` — that's the deliverable. Composed PNG + PDF with brand mark, designed grid, palette strip, and typeset direction copy. The composition IS the product.
 
 ## Outputs
 

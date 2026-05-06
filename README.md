@@ -11,9 +11,10 @@ You talk to your AI agent (Claude Code, Codex, Gemini CLI, OpenCode). The agent 
 ## 5-minute setup
 
 ```bash
-# 1. Install the Higgsfield CLI + ffmpeg
+# 1. Install the Higgsfield CLI + ffmpeg + Pillow
 npm install -g @higgsfield/cli
 brew install ffmpeg                      # or apt install ffmpeg
+pip install Pillow                       # for moodboard composition
 
 # 2. Sign in to Higgsfield (opens browser for device-code, one-time)
 higgs auth login
@@ -28,14 +29,22 @@ higgs auth login
 git clone <this-repo-url> higgs-vids
 cd higgs-vids
 
-# 5. Open in Claude Code (Claude Desktop → Code tab → "Open" → this folder)
-#    Then in the chat:
+# 5. Install globally (recommended) — symlinks the skill + slash commands
+#    into ~/.claude/ so they work in ANY Claude Code session, not just here.
+#    Edits in this repo propagate immediately (symlinks, not copies).
+bash install.sh
+
+# 6. Open Claude Code anywhere. Then:
 /higgsfield-init                          # verifies setup, picks workspace
 /higgsfield-brand-create <yourname>       # one-time per brand — adaptive interview
 /higgsfield-make --brand <yourname> "topic for your post"
 ```
 
 That's it. The agent does the rest.
+
+**Skip step 5** if you only want the skill / commands available when CWD is this repo (project-scoped fallback). For day-to-day use across client folders, install globally.
+
+**To uninstall** (just removes the symlinks; repo stays intact): `bash uninstall.sh`
 
 ## How to use it
 
