@@ -43,12 +43,12 @@ Type these in Claude Code. The two commands that make this stop feeling generic 
 
 - **`/higgsfield-init`** — first-run health check. Confirms the Higgsfield CLI is installed and signed in, picks the active workspace, reports your credit balance. Run once per machine.
 
-**Problem: AI content usually sounds and looks like it could belong to anyone.** This fixes that. Claude interviews you once, learns your voice, audience, taste, visual references, constraints, content goals, and reusable assets, then saves that as a brand profile. After this, content generated with your brand stops starting from a blank generic prompt and starts from your actual style.
+**Use this when you want Higgsfield output to feel like your brand, not generic AI content.** Claude interviews you once, learns your voice, audience, taste, visual references, constraints, content goals, and reusable assets, then saves that as a brand profile. After this, content generated with your brand stops starting from a blank generic prompt and starts from your actual style.
 
 Run: **`/higgsfield-brand-create <name>`**  
 Then generate with: **`/higgsfield-make --brand <name> "topic"`**
 
-**Problem: once you find a content format that works, you still have to explain it again every time.** Presets save the shape of repeatable work: carousel length, aspect ratio, platform, caption style, moodboard direction, product-shot mode, or whatever else makes that format yours. After this, you only change the topic.
+**Use this when you repeat the same kind of content and do not want to re-explain the format every time.** Presets save the shape of repeatable work: carousel length, aspect ratio, platform, caption style, moodboard direction, product-shot mode, or whatever else makes that format yours. After this, you only change the topic.
 
 Run: **`/higgsfield-preset-create <brand> <recipe>`**  
 Then generate with: **`/higgsfield-make --preset <name> "topic"`**
