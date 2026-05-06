@@ -32,15 +32,27 @@ Optional but recommended: install a "humanizer" skill if you have one — the to
 
 Type these in Claude Code. They auto-detect a brand profile when one applies.
 
-| Command | What it does | Spends credits? |
-|---|---|---|
-| `/higgsfield-init` | First-run health check: confirms CLI is installed and authed, picks active workspace, reports balance. Run once per machine. | No |
-| `/higgsfield-brand-create <name>` | Adaptive interview to build a brand profile. ~30 min. Captures voice, audience, visual DNA, do's and don'ts. Optionally fetches your existing channels and trains a Soul ID. Saves to `brands/<name>/`. | No (Soul ID training is opt-in) |
-| `/higgsfield-preset-create <brand> <recipe>` | Save a reusable shape for a content type, e.g. *"Ben's IG carousels are always 6 slides, 4:5, list-format"*. After this you can run that recipe by preset name. | No |
-| `/higgsfield-make "topic"` | Main entry. Agent reads your topic, picks the right recipe, generates the content. Add `--brand <name>` to apply a brand profile. Add `--preset <name>` to use a saved shape. | Yes |
-| `/higgsfield-pattern <name> "args"` | Run a specific recipe directly when you know which one you want. E.g. `/higgsfield-pattern moodboard --brand ben "yacht shoot"`. | Yes |
-| `/higgsfield-budget [path\|workspace]` | "What did I spend?" Reads cost logs across runs. No args = all-time total. With a path = that run only. With a workspace name = filter to that workspace. | No |
-| `/higgsfield-test <1\|2\|3>` | Verify the toolkit works. **Stage 1 = no credits** (preflight only), 2 = ~12 credits (one image), 3 = a full reel. | Stage-dependent |
+### Setup & info — no credits spent
+
+- **`/higgsfield-init`** — first-run health check. Confirms the Higgsfield CLI is installed and signed in, picks the active workspace, reports your credit balance. Run once per machine.
+
+- **`/higgsfield-brand-create <name>`** — adaptive interview to build a brand profile. ~30 minutes. Captures your voice, audience, visual DNA, do's and don'ts. Optionally fetches your existing channels and trains a Soul ID. Saves to `brands/<name>/`. (Soul ID training, if you opt in, is the only thing here that *might* spend a small amount — most of the interview is free.)
+
+- **`/higgsfield-preset-create <brand> <recipe>`** — save a reusable shape for a content type, e.g. *"Ben's IG carousels are always 6 slides, 4:5, list-format"*. After this, you can run that recipe by preset name and skip re-specifying the shape every time.
+
+- **`/higgsfield-budget [path|workspace]`** — *"what did I spend?"*. Reads cost logs across runs. No args = all-time total. With a run path = just that run. With a workspace name = filter to that workspace.
+
+### Generate content — spends credits
+
+- **`/higgsfield-make "topic"`** — the main entry. The agent reads your topic, picks the right recipe, generates the content. Add `--brand <name>` to apply a brand profile, or `--preset <name>` to use a saved shape.
+
+- **`/higgsfield-pattern <name> "args"`** — run a specific recipe directly when you already know which one you want. E.g. `/higgsfield-pattern moodboard --brand ben "yacht shoot"`.
+
+Both of these always preflight first and ask before spending if the estimate is significant.
+
+### Verify the toolkit works
+
+- **`/higgsfield-test <1|2|3>`** — staged verification. **Stage 1 is free** (preflights only, no generation). Stage 2 spends ~12 credits (one image). Stage 3 runs a full reel.
 
 ## Recipes (patterns)
 
