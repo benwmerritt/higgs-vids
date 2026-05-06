@@ -34,17 +34,40 @@ That's it. The agent does the rest.
 
 The toolkit is **agent-driven**. You write a brief, you talk to the agent, the agent does the work. You don't run CLI commands directly (unless you want to).
 
+## Two ways to use it
+
+### One-off content (no setup)
+
 A brief is a markdown file. One sentence is enough:
 
 ```markdown
 # Brief: Coffee Shop Reel
 
-Make me a 5-shot 9:16 reel for a new specialty coffee shop opening Saturday. 
-Warm wood and brass interior, single-origin pour-over, latte art close-ups. 
+Make me a 5-shot 9:16 reel for a new specialty coffee shop opening Saturday.
+Warm wood and brass interior, single-origin pour-over, latte art close-ups.
 Inviting, "you should come visit" vibe.
 ```
 
-Drop it in `skill/higgsfield-autopilot/briefs/`, then in Claude Code: `/higgsfield-make briefs/coffee-shop-reel.md`.
+Drop it in `skill/higgsfield-autopilot/briefs/`, then `/higgsfield-make briefs/coffee-shop-reel.md`. Generic-but-good output, no brand context.
+
+### Real content for a real brand (recommended for personal brands + businesses)
+
+```bash
+# One-time per brand — adaptive interview, optional channel fetch, optional Soul ID training
+/higgsfield-brand-create ben
+
+# Then run any pattern with full brand context applied
+/higgsfield-make --brand ben "5 things I'd unlearn from year one of running a studio"
+# → produces a 6-slide IG carousel + caption + hashtags, all in YOUR brand voice
+```
+
+The brand profile captures *who you are* — voice, audience, the specific thing that makes you non-substitutable, what you'd cringe at, your assets, your constraints. Once it's in, every future run for that brand uses it. Output stops being "AI made me content" and starts being "this is genuinely my content."
+
+Optional: build presets for the content types you make repeatedly:
+```bash
+/higgsfield-preset-create ben carousel-post   # save the frame; topic varies per run
+/higgsfield-make --preset ben-carousel-post "topic for this week's post"
+```
 
 The agent will:
 1. Verify your setup

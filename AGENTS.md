@@ -29,11 +29,28 @@ This is a **video production toolkit** built on top of the official Higgsfield C
 
 | Command | Maps to |
 |---|---|
-| `/higgsfield-init` | First-run setup |
-| `/higgsfield-make <brief>` | Main entry — read brief, pick pattern, execute, deliver |
+| `/higgsfield-init` | First-run setup (CLI install check, auth, workspace) |
+| `/higgsfield-brand-create <name>` | Adaptive interview → `brands/<name>/profile.md` + assets folder |
+| `/higgsfield-preset-create <brand> <pattern>` | Reusable preset on top of brand profile → `presets/<name>.md` |
+| `/higgsfield-make <brief\|--brand <name> "topic"\|--preset <name> "topic">` | Main entry — brand-aware when given a brand or preset |
 | `/higgsfield-pattern <name> [args]` | Direct pattern execution |
 | `/higgsfield-test <1\|2\|3>` | Stage verification |
 | `/higgsfield-budget [path]` | Cost queries |
+
+When the human invokes one of these, the matching file in `.claude/commands/` tells you exactly what to do.
+
+## Brand-flow (the personalisation layer)
+
+If the human's request mentions a brand by name (or you see `brands/<name>/` exists in the repo), **load that brand profile first** and apply it to every step. The brand profile contains:
+- Voice (how they actually write — lexicon, sentence patterns, banned words)
+- Visual DNA (palette, photo aesthetic, mood)
+- Audience (the specific person, not demographic)
+- Spike (what makes them non-substitutable)
+- Constraints (hard rules — refuse to produce these)
+- Soul ID (face-faithful identity model, if trained)
+- Hashtag families
+
+Without a brand profile, generation is generic (acceptable for exploration). With one, output should feel like that brand's content. **The brand profile is not optional once it exists** — refusing to apply it would be a bug.
 
 When the human invokes one of these, the matching file in `.claude/commands/` tells you exactly what to do.
 
@@ -41,16 +58,24 @@ When the human invokes one of these, the matching file in `.claude/commands/` te
 
 ```
 .claude/commands/             ← slash commands (Claude Code projects-skill format)
+brands/                       ← real brand profiles (gitignored — private assets)
+  <name>/profile.md             voice, audience, spike, visual DNA, constraints
+  <name>/assets/                user-provided logos, photos, style refs, samples
+  <name>/source-fetches/        auto-imported context from web channels
+  <name>/soul-id.txt            UUID of trained Soul ID (if any)
+presets/                      ← reusable brand × pattern × platform configs (gitignored)
+  <brand>-<pattern>.md
 skill/higgsfield-autopilot/   ← the skill bundle — your operating manual
   SKILL.md                     ← read first
-  references/                  ← CLI cheatsheet, model selection, cost discipline, output management, prompting
-  patterns/                    ← recipes per use case (product-reel, quick-social, multi-platform-render, +stubs)
+  references/                  ← CLI cheatsheet, model selection, cost discipline, brand/preset/interview/hook/caption/hashtag craft, prompting
+  patterns/                    ← 7 recipes per use case (carousel-post, product-reel, quick-social, multi-platform-render, brand-shoot, ecom-listing, character-campaign)
   briefs/                      ← example inputs
   scripts/assemble-video.py    ← ffmpeg concat helper (the only script you call)
   test/                        ← stage 1/2/3 verification prompts
 docs/research/                ← deep-dive research on Higgsfield (background reading)
+docs/ask-rag/                 ← MCP knowledge artefacts (Ads Marketing 9-question)
 docs/skills/                  ← peer skill: prompt design (skill-higgsfield-shot-designer.md)
-findings/                     ← origin story (the IG reel that inspired v1, kept for context)
+findings/                     ← origin story (IG reel that inspired v1) + empirical findings (Starter plan)
 runs/                         ← per-run outputs (gitignored)
 ```
 

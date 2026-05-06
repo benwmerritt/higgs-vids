@@ -69,6 +69,31 @@ Failed `soul_cast` jobs do **not** appear to deduct credits (per upstream report
 
 ---
 
+### Skill loader: 1024-char description limit (some agents)
+
+**Source:** Codex's skill loader rejects skills with frontmatter `description:` longer than 1024 chars as "invalid", silently skipping the entire skill body. Reported 2026-05-06 against official Higgsfield skills (`higgsfield-product-photoshoot` was 1143 chars, `higgsfield-generate` was 1207 chars). Skill bodies were fine — only the frontmatter description killed loading.
+
+**Implication for us:** keep `description:` in `SKILL.md` frontmatter **well under 1024 chars**. Aim for ≤900 chars to be safe across loaders.
+
+**Our compliance:** `skill/higgsfield-autopilot/SKILL.md` description is currently **487 chars** — well within limits. Re-check after any major SKILL.md edit.
+
+**How to measure:**
+```python
+python3 -c "
+import re
+text = open('skill/higgsfield-autopilot/SKILL.md').read()
+fm = re.match(r'^---\n(.*?)\n---', text, re.DOTALL).group(1)
+desc = re.search(r'^description:\s*(.*?)(?=\n[a-z_-]+:|\Z)', fm, re.MULTILINE | re.DOTALL).group(1).strip()
+if desc.startswith('|'):
+    desc = '\n'.join(l[2:] if l.startswith('  ') else l for l in desc[1:].lstrip().split('\n'))
+print(f'{len(desc)} chars')
+"
+```
+
+**Avoid:** the YAML `description: |` multi-line block form. Some loaders count it differently — keep description as a single inline string when possible.
+
+---
+
 ## Documentation gaps (research couldn't answer; needs empirical testing)
 
 These aren't bugs — they're things upstream simply hasn't documented. The agent should treat them as unknowns and log behavior when encountered.

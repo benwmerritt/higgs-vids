@@ -9,14 +9,17 @@ Patterns are agent-facing. The agent picks one based on the brief, then follows 
 The agent picks a pattern by reading the brief and matching against this tree (top to bottom — first match wins):
 
 ```
+brief asks for an Instagram / LinkedIn carousel (multi-slide, 5-10 slides)?
+  → carousel-post.md  ← brand-aware; needs a brand profile
+
 brief mentions a product photo / hero image / lifestyle shot, no motion?
-  → brand-shoot.md  [STUB — v3.1]
+  → brand-shoot.md
 
 brief mentions an Amazon / Etsy / marketplace listing?
-  → ecom-listing.md  [STUB — v3.1]
+  → ecom-listing.md
 
 brief mentions a recurring character, brand mascot, or named talent across multiple shots?
-  → character-campaign.md  [STUB — v3.1]
+  → character-campaign.md
 
 brief asks for the same concept in multiple aspect ratios (9:16 + 1:1 + 16:9 etc.)?
   → multi-platform-render.md
@@ -25,10 +28,10 @@ brief is short / time-pressured / "for daily socials" / explicit budget cap?
   → quick-social.md
 
 brief is a video reel / IG-ready / multi-shot narrative with motion?
-  → product-reel.md  ← the canonical, default pattern
+  → product-reel.md  ← canonical reel default
 ```
 
-If nothing matches cleanly, **default to `product-reel.md`** and adapt the shotlist to fit. If the brief is genuinely outside the toolkit's scope, stop and tell the user.
+If nothing matches cleanly, **default to `carousel-post.md`** if a brand profile exists (cheapest, most useful) or `product-reel.md` for video-led briefs. If the brief is genuinely outside the toolkit's scope, stop and tell the user.
 
 ## Pattern file shape
 
@@ -45,6 +48,7 @@ Every pattern follows the same structure (so the agent can rely on the layout):
 
 | Pattern | Status | Rack-rate cost | Notes |
 |---|---|---|---|
+| `carousel-post.md` | ✅ Full | ~60-120 credits rack (~0.6-1.2 actual on paid) | **Brand-aware** — IG/LinkedIn carousel from a brand profile + topic; produces slides + caption + hashtags |
 | `product-reel.md` | ✅ Full | ~600-12,500 credits | Multi-shot 9:16 reel, image-to-video chain |
 | `quick-social.md` | ✅ Full | ~50-300 credits | Single still or short clip, low-credit fast turn |
 | `multi-platform-render.md` | ✅ Full | ~36-150 credits per concept × N aspects | One concept, multiple aspects |

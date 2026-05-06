@@ -14,6 +14,11 @@ downloads/frames/
 runs/
 skill/**/runs/
 
+# Brand profiles + presets — contain real photos, voice samples, possibly private business info.
+# Users who want to commit a public brand kit can override per-folder with a !brands/<name>/ rule.
+brands/
+presets/
+
 # Anywhere in the tree, ignore large media binaries by default
 *.mp4
 *.mkv

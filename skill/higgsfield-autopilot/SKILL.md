@@ -135,10 +135,37 @@ Tell the user:
 | Command | What you do |
 |---|---|
 | `/higgsfield-init` | Verify CLI installed, run `higgs auth login` if needed, list workspaces, help user select active. Report balance. |
-| `/higgsfield-make <brief>` | The main entry. Steps 1-8 above. |
+| `/higgsfield-brand-create <name>` | Adaptive interview to create a brand profile. Reads `references/interview-craft.md` for the philosophy + adapts per `brand_type`. Optionally fetches user's existing channels via firecrawl. Optionally trains a Soul ID. Saves `brands/<name>/profile.md`. |
+| `/higgsfield-preset-create <brand> <pattern>` | Build a reusable preset on top of an existing brand profile. Pattern-specific interview. Saves `presets/<brand>-<pattern>.md`. |
+| `/higgsfield-make <brief\|--brand <name> <topic>\|--preset <name> <topic>>` | The main entry. Steps 1-8 above. Brand-aware when `--brand` or `--preset` is used. |
 | `/higgsfield-pattern <name> [args]` | Skip brief expansion; jump straight to a named pattern with explicit args. |
 | `/higgsfield-test <1\|2\|3>` | Stage verification. Read `test/stage-N.md` and execute. |
 | `/higgsfield-budget [run-dir\|workspace]` | Read cost-log.json files, summarise spending. |
+
+## Brand profiles + presets (the personalisation layer)
+
+The toolkit's "make my actual content for my actual brand" path:
+
+```
+brands/<name>/                       ← real brand context (gitignored — has private assets)
+├── profile.md                        ← voice, audience, spike, visual DNA, constraints
+├── assets/                           ← user-provided logos, photos, style refs, samples
+├── source-fetches/                   ← auto-imported context from website / IG / LinkedIn
+└── soul-id.txt                       ← if trained
+
+presets/<brand>-<pattern>.md          ← saved frame for a content type for that brand
+```
+
+When invoked with `--brand` or `--preset`, the agent loads the brand profile **first** and applies it to every step:
+- Voice from profile shapes captions
+- Visual DNA from profile shapes image prompts
+- Constraints from profile are hard rules (refuse to produce)
+- Hashtag families from profile narrow the picks
+- Soul ID from profile is used for any human-featuring shot
+
+**Without a brand profile**, the agent generates generically (good for one-offs and exploration). **With one**, output feels like the brand's content. The whole point of the brand-flow is the difference between "AI made me a thing" and "this is genuinely my content."
+
+See `references/brand-profile-format.md` and `references/preset-format.md` for schemas; `references/interview-craft.md` for how the interview is run.
 
 ## Foundational rules (added 2026-05-06 after research)
 
@@ -189,15 +216,29 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 
 ## Reference index
 
+**Operational:**
 - `references/cli-cheatsheet.md` — every `higgs` command + when
 - `references/model-selection-guide.md` — decision tree for which model (rack-rate + absorption notes)
 - `references/cost-discipline.md` — capability-check ritual, ledger format, no-rollover semantics
 - `references/output-management.md` — run dir layout, deliverables
-- `references/known-issues.md` — upstream bugs (#1 plan-blind cost, #2 no Canvas, #3 Windows install, #4 soul_cast broken)
+- `references/known-issues.md` — upstream bugs (#1 plan-blind cost, #2 no Canvas, #3 Windows install, #4 soul_cast broken) + skill-loader 1024-char limit
 - `references/empirical-tests.md` — 8 ranked experiments to calibrate unknowns
+
+**Brand + content craft (added 2026-05-06):**
+- `references/interview-craft.md` — adaptive interview philosophy for `/higgsfield-brand-create`
+- `references/brand-profile-format.md` — schema for `brands/<name>/profile.md`
+- `references/preset-format.md` — schema for `presets/<name>.md`
+- `references/asset-conventions.md` — asset folder layout, Soul ID photo requirements
+- `references/hook-craft.md` — slide 1 / first-line hook patterns + AI-tells to avoid
+- `references/caption-craft.md` — caption shape per platform + AI-tells
+- `references/hashtag-strategy.md` — per-platform counts + brand hashtag families
+
+**Prompt-craft (kept):**
 - `references/soul-cinema-prompting.md` — prompt structure (Subject → Scene → Action → Camera → Lighting → Style)
 - `references/brief-expansion-rules.md` — brief → shotlist
-- `patterns/` — 6 recipes per use case (all full as of 2026-05-06)
+
+**Patterns:**
+- `patterns/` — 7 recipes per use case (all full as of 2026-05-06; `carousel-post.md` is brand-aware)
 - `briefs/` — example inputs
 - `test/` — verification stages (1=cost preview only, 2=single shot, 3=full reel)
 - `scripts/assemble-video.py` — ffmpeg concat helper
