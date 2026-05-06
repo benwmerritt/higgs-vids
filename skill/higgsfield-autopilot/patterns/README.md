@@ -41,15 +41,15 @@ Every pattern follows the same structure (so the agent can rely on the layout):
 5. **Common variations** — tweaks for related sub-cases
 6. **Failure handling** — recovery procedures specific to this pattern
 
-## Pattern status (v3.0)
+## Pattern status (v3.0 + research integration 2026-05-06)
 
-| Pattern | Status | Cost (rough) |
-|---|---|---|
-| `product-reel.md` | ✅ Full | ~600-12,500 credits depending on video model |
-| `quick-social.md` | ✅ Full | ~50-300 credits |
-| `multi-platform-render.md` | ✅ Full | ~36-150 credits per concept × N aspects |
-| `brand-shoot.md` | 🚧 Stub (v3.1) | ~30-200 credits |
-| `ecom-listing.md` | 🚧 Stub (v3.1) | ~50-300 credits |
-| `character-campaign.md` | 🚧 Stub (v3.1) | varies; Soul ID training is one-time ~free, then per-shot |
+| Pattern | Status | Rack-rate cost | Notes |
+|---|---|---|---|
+| `product-reel.md` | ✅ Full | ~600-12,500 credits | Multi-shot 9:16 reel, image-to-video chain |
+| `quick-social.md` | ✅ Full | ~50-300 credits | Single still or short clip, low-credit fast turn |
+| `multi-platform-render.md` | ✅ Full | ~36-150 credits per concept × N aspects | One concept, multiple aspects |
+| `brand-shoot.md` | ✅ Full | ~50-2,000 credits per batch | Delegates to `higgsfield-product-photoshoot` official skill; supports `--enhance-only` free preview |
+| `ecom-listing.md` | ✅ Full | ~150-2,000 credits | Delegates to `higgsfield-marketplace-cards` official skill; full scope/asset support |
+| `character-campaign.md` | ✅ Full | varies; Soul ID training cost unknown — measure | Train Soul ID once, reuse across campaigns |
 
-Stubs document the API surface and are runnable as "kick-off then ask user to refine" — they just don't have the full optimised recipe yet. The agent should warn the user when running a stub.
+All patterns are runnable. **Subscriber-absorbed cost is typically 90-99% lower than rack rate on paid plans** (see `references/cost-discipline.md`). Use `references/empirical-tests.md` to calibrate the user's actual ratios.

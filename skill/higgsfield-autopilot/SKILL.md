@@ -140,15 +140,27 @@ Tell the user:
 | `/higgsfield-test <1\|2\|3>` | Stage verification. Read `test/stage-N.md` and execute. |
 | `/higgsfield-budget [run-dir\|workspace]` | Read cost-log.json files, summarise spending. |
 
+## Foundational rules (added 2026-05-06 after research)
+
+These two rules supersede earlier guidance and apply to every spending decision:
+
+1. **Capability checks over tier-name checks.** Higgsfield's tier names have shifted (Starter/Plus/Ultra in their April article vs Basic/Pro/Ultimate/Creator in May reviews) and will likely shift again. Don't write logic that depends on the literal plan-name string. Instead: read `higgs --json account status` for live state and use observed behavior (model errors out / balance went down / training succeeded) as the signal.
+2. **Actual cost is `account status` delta, not `generate cost`.** The CLI is plan-blind (upstream issue #1, see `references/known-issues.md`). `generate cost` returns rack rate regardless of plan. We've measured 99% absorption for image models on Starter — the actual delta is 100× smaller than preflight. Always log both: preflight (planning bound) AND actual delta (ground truth). See `references/cost-discipline.md`.
+
+Also: **pin the CLI version.** `@higgsfield/cli` shipped 11 versions in 5 days during early May 2026. Run `higgs version` at session start; if the version differs from when this skill was last validated (0.1.28, 2026-05-04), be alert for flag/behavior changes.
+
 ## What you must NEVER do
 
-- **Spend without preflight.** Always `higgs generate cost` before `higgs generate create`.
+- **Spend without preflight.** Always `higgs generate cost` before `higgs generate create` — even if you suspect the plan absorbs it.
+- **Trust `generate cost` as actual cost.** It's rack rate. Pair with `account status` before/after.
+- **Bake tier names into decisions.** Use capability checks. Tier names will rename.
 - **Print `higgs auth token` output.** It's a credential. If you accidentally see it, do not echo it back.
 - **Improvise model choices.** Use `references/model-selection-guide.md`. If the user wants a model not on the list, run `higgs model get <name>` first to verify it exists.
-- **Use `soul_cast`** — it's broken upstream (issue #4). Use `cinematic_studio_3_0` or `kling3_0` for video.
+- **Use `soul_cast`** — it's broken upstream (issue #4). Use `cinematic_studio_3_0 --image <still-job-id>` or `kling3_0 --start-image <still-job-id>` for Soul-driven video. See `references/known-issues.md`.
+- **Assume Canvas / webhooks / batch-discounts exist.** They don't. Polling, individual jobs, linear cost.
 - **Spawn a browser, install Playwright, register an MCP server.** v2 architecture. Deleted. The CLI is the only path.
 - **Commit anything to git.** The user does that themselves.
-- **Auto-top-up credits.** When out of balance, stop and tell the user.
+- **Auto-top-up credits.** When out of balance, stop and tell the user (no auto-overage exists anyway).
 
 ## What you should always do
 
@@ -178,12 +190,14 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 ## Reference index
 
 - `references/cli-cheatsheet.md` — every `higgs` command + when
-- `references/model-selection-guide.md` — decision tree for which model
-- `references/cost-discipline.md` — preflight, confirmation thresholds, ledger
+- `references/model-selection-guide.md` — decision tree for which model (rack-rate + absorption notes)
+- `references/cost-discipline.md` — capability-check ritual, ledger format, no-rollover semantics
 - `references/output-management.md` — run dir layout, deliverables
+- `references/known-issues.md` — upstream bugs (#1 plan-blind cost, #2 no Canvas, #3 Windows install, #4 soul_cast broken)
+- `references/empirical-tests.md` — 8 ranked experiments to calibrate unknowns
 - `references/soul-cinema-prompting.md` — prompt structure (Subject → Scene → Action → Camera → Lighting → Style)
 - `references/brief-expansion-rules.md` — brief → shotlist
-- `patterns/` — recipes per use case
+- `patterns/` — 6 recipes per use case (all full as of 2026-05-06)
 - `briefs/` — example inputs
 - `test/` — verification stages (1=cost preview only, 2=single shot, 3=full reel)
 - `scripts/assemble-video.py` — ffmpeg concat helper

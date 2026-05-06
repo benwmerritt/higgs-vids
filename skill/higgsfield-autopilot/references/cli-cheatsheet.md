@@ -2,10 +2,14 @@
 
 Single source of truth for which `higgs` command does what. The agent loads this when running any pattern.
 
-> **Heads up — open issues.** These are confirmed broken in upstream `@higgsfield/cli` as of 2026-05-06; route around them:
+> **Heads up — open issues + operational caveats.** Full details in `references/known-issues.md`. Quick summary:
 > - **soul_cast** (issue #4): ignores `--prompt` object. Use `cinematic_studio_3_0` or `kling3_0` for video instead.
 > - **Windows install** (issue #3): `tar --force-local` missing. Windows users need WSL/Git Bash.
-> - **Subscription pricing** (issue #1): CLI doesn't yet flag included-on-plan models. Cross-check `account status` plan + `generate cost` output manually.
+> - **Subscription pricing** (issue #1): CLI is plan-blind. `generate cost` is rack rate; actual cost only knowable via `account status` delta. See `references/cost-discipline.md`.
+> - **Canvas workflows** (issue #2): not accessible via CLI/MCP/REST. Compose pipelines as bash sequences of single-model calls.
+> - **Webhooks**: NOT supported. Use `--wait` (blocks) or `generate wait <id>` (poll).
+> - **CLI cadence**: 11+ versions in 5 days (0.1.18 through 0.1.28 between 2026-05-02 and 2026-05-04). Pin to a known-good version OR run `higgs version` at session start to detect breaking changes.
+> - **REST API**: 1:1 mirror of CLI. No separate billing model. Same primitives.
 
 ## Auth + identity
 
