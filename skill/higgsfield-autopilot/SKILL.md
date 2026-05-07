@@ -33,6 +33,17 @@ Then read the brief and execute.
 
 For any user request to make video/image content:
 
+### 0. Cold-start handling (read first if context is missing)
+
+Before reading the brief, check what you actually have:
+
+- **No brief, no brand profile, no clear creative intent?** Read `references/onboarding-flow.md` and follow the (a)/(b)/(c)/(d) menu. Don't generate. Capture creative direction first.
+- **Brief is one sentence with no brand context?** Surface the warning in `onboarding-flow.md` § 5: "I can run that, but with one sentence and no brand context the result will look generic AI." Offer the brand-sketch-first path or honor an explicit "just do it" override.
+- **User just ran `/higgsfield-init`?** That command already drove the onboarding flow — pick up wherever they landed (brand-create, moodboard, shape an idea, exploration).
+- **User has a brand profile in `brands/<name>/` AND a brief?** Skip cold-start, continue to step 1.
+
+The first session's job is to capture creative vision worth spending credits on. Speed-to-generation is not the win condition.
+
 ### 1. Read the brief
 
 The user supplies either:
@@ -134,7 +145,7 @@ Tell the user:
 
 | Command | What you do |
 |---|---|
-| `/higgsfield-init` | Verify CLI installed, run `higgs auth login` if needed, list workspaces, help user select active. Report balance. |
+| `/higgsfield-init` | Verify CLI installed. Ask user if they have an account; if yes, run `higgs auth login` for them (extended timeout, browser auto-opens). Classify plan tier from balance + observed absorption. End with the (a)/(b)/(c)/(d) menu — brand setup / free moodboard demo / shape an idea / just explore. Reads `references/onboarding-flow.md` for the decision tree. |
 | `/higgsfield-brand-create <name>` | Adaptive interview to create a brand profile. Reads `references/interview-craft.md` for the philosophy + adapts per `brand_type`. Optionally fetches user's existing channels via firecrawl. Optionally trains a Soul ID. Saves `brands/<name>/profile.md`. |
 | `/higgsfield-preset-create <brand> <pattern>` | Build a reusable preset on top of an existing brand profile. Pattern-specific interview. Saves `presets/<brand>-<pattern>.md`. |
 | `/higgsfield-make <brief\|--brand <name> <topic>\|--preset <name> <topic>>` | The main entry. Steps 1-8 above. Brand-aware when `--brand` or `--preset` is used. |
@@ -234,6 +245,9 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 - `references/output-management.md` — run dir layout, deliverables
 - `references/known-issues.md` — upstream bugs (#1 plan-blind cost, #2 no Canvas, #3 Windows install, #4 soul_cast broken) + skill-loader 1024-char limit
 - `references/empirical-tests.md` — 8 ranked experiments to calibrate unknowns
+
+**Onboarding (added 2026-05-07):**
+- `references/onboarding-flow.md` — cold-start decision tree: auth-state branches, plan-tier postures, the (a)/(b)/(c)/(d) menu, "no-context input" warning, image-vs-video gap on Starter, moodboard as free demo, pricing caveat language
 
 **Brand + content craft (added 2026-05-06):**
 - `references/interview-craft.md` — adaptive interview philosophy for `/higgsfield-brand-create`

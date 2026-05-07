@@ -31,7 +31,7 @@ Then open Claude Code and run:
 /higgsfield-init
 ```
 
-`/higgsfield-init` verifies the CLI, sign-in, workspace, balance, and model access. If you want a deeper no-credit workflow check later, run `/higgsfield-test 1`. See [INSTALL.md](INSTALL.md) for dependency details, Windows notes, and the full first-run flow.
+`/higgsfield-init` is conversational. It checks the CLI, asks if you've got a Higgsfield account already (signs you in if you do — no need to run `higgs auth login` yourself), classifies your plan, and ends with a four-way menu: build out brand context, try a free moodboard demo, shape a specific idea, or just explore. **It does not push you straight at content generation.** The first session's job is figuring out what you actually want to make so the next generation is worth spending credits on. If you don't have an account yet, brand setup, ideation, and asset prep are all free and useful — say so and we'll keep going. For a deeper no-credit workflow check later, run `/higgsfield-test 1`. See [INSTALL.md](INSTALL.md) for dependency details, Windows notes, and the full first-run flow.
 
 Optional but recommended: install a "humanizer" skill if you have one — the toolkit applies it as a base voice layer so generated copy reads like a human wrote it before brand voice gets layered on.
 
@@ -41,7 +41,7 @@ Type these in Claude Code. The two commands that make this stop feeling generic 
 
 ### Setup your brand engine — no credits spent
 
-- **`/higgsfield-init`** — first-run health check. Confirms the Higgsfield CLI is installed and signed in, picks the active workspace, reports your credit balance. Run once per machine.
+- **`/higgsfield-init`** — first-run setup + conversational onboarding. Checks the CLI, asks if you've got a Higgsfield account and signs you in if you do, picks the active workspace, classifies your plan tier (so video-on-cheap-plan warnings actually fire), and ends with a four-way menu — brand setup / free moodboard demo / shape an idea / just explore. No-account users still get value: brand work and ideation are free. Idempotent — re-run any time.
 
 **Use this when you want Higgsfield output to feel like your brand, not generic AI content.** Claude interviews you once, learns your voice, audience, taste, visual references, constraints, content goals, and reusable assets, then saves that as a brand profile. After this, content generated with your brand stops starting from a blank generic prompt and starts from your actual style.
 

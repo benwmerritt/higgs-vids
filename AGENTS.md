@@ -32,13 +32,15 @@ This is a **video production toolkit** built on top of the official Higgsfield C
 - **Don't print `higgs auth token` output.** It's a credential.
 - **Don't spend without preflight.** Always run `higgs generate cost ...` before `higgs generate create ...`. See `references/cost-discipline.md`.
 - **Don't commit to git.** The user does that.
-- **Don't auto-install dependencies.** Tell the user what to install; let them decide.
+- **Don't auto-install dependencies.** `npm install`, `brew install`, etc. stay user-driven. (`higgs auth login` is fine to run *with explicit user consent* — it's a CLI action, not a system install — see `references/onboarding-flow.md` § 2.)
+- **Don't refuse to engage with users who have no Higgsfield account yet.** Brand setup, moodboard ideation, and asset prep all deliver value without burning credits. See `references/onboarding-flow.md`.
+- **Don't push first-time users straight at `/higgsfield-make`.** Cold-start handling lives in `references/onboarding-flow.md` — read it when the user lands without a brief, brand profile, or clear creative intent.
 
 ## Slash commands the human will type
 
 | Command | Maps to |
 |---|---|
-| `/higgsfield-init` | First-run setup (CLI install check, auth, workspace) |
+| `/higgsfield-init` | First-run setup + conversational onboarding (CLI check, asks if user has an account and signs them in if so, classifies plan tier, ends with a four-way menu — brand setup / free moodboard demo / shape an idea / just explore). Reads `references/onboarding-flow.md` for the decision tree. |
 | `/higgsfield-brand-create <name>` | Adaptive interview → `brands/<name>/profile.md` + assets folder |
 | `/higgsfield-preset-create <brand> <pattern>` | Reusable preset on top of brand profile → `presets/<name>.md` |
 | `/higgsfield-make <brief\|--brand <name> "topic"\|--preset <name> "topic">` | Main entry — brand-aware when given a brand or preset |
