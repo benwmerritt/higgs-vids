@@ -7,7 +7,7 @@
 ## Pre-conditions
 
 - `higgs` CLI installed (`which higgs`)
-- `higgs auth login` completed (`higgs account status` returns OK)
+- `/higgsfield-init` completed sign-in (`higgs account status` returns OK)
 - ffmpeg installed (only matters for stage 3, but check now)
 
 If any are missing, stop and tell the user. Don't install for them.

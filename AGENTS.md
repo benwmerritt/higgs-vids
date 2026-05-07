@@ -22,7 +22,7 @@ This is a **video production toolkit** built on top of the official Higgsfield C
 
 ## What you must NOT do
 
-- **Don't spawn a browser.** No Playwright, no MCP browser tools, no Chrome automation. Use the Read tool for images. See `references/agent-tooling-rules.md`.
+- **Don't use a browser to operate Higgsfield or review media.** No Playwright, no MCP browser tools, no Chrome automation, no browser previews. Use the `higgs` CLI for Higgsfield work and the Read tool for images. The only browser exception is `higgs auth login` after explicit user consent. See `references/agent-tooling-rules.md` and `references/onboarding-flow.md`.
 - **Don't load unrelated skills outside this bundle.** No `frontend-design`, no `artifacts-builder`, nothing that steers toward HTML or browser output. The only allowed external references are official Higgsfield product/listing skill docs when a pattern explicitly names them.
 - **Don't generate HTML files or stitched preview images.** Output is PNGs the user posts. Each slide is its own file in its own `shot-NN/` subfolder.
 - **Don't write to the repo root.** Every artefact goes in `runs/<run-dir>/`.
@@ -62,8 +62,6 @@ If the human's request mentions a brand by name (or you see `brands/<name>/` exi
 - Hashtag families
 
 Without a brand profile, generation is generic (acceptable for exploration). With one, output should feel like that brand's content. **The brand profile is not optional once it exists** — refusing to apply it would be a bug.
-
-When the human invokes one of these, the matching file in `commands/claude/` tells you exactly what to do. Claude Code gets those files through symlinks created by `install.sh`; the source lives in this repo.
 
 ## Repo map
 

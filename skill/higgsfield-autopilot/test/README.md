@@ -62,7 +62,7 @@ Same test files, same expected behaviour across Claude Code, Gemini, Codex, Open
 | Symptom | Stage | Likely cause |
 |---|---|---|
 | "higgs not found" | any | CLI not installed → `npm install -g @higgsfield/cli` |
-| "Not authenticated" | any | `higgs auth login` |
+| "Not authenticated" | any | Run `/higgsfield-init`; it can run `higgs auth login` after consent |
 | "Insufficient balance" | 2, 3 | Top up at higgsfield.ai or wait for plan reset |
 | `generate cost` returns null | 1 | Model name wrong → `higgs model list` |
 | Generation times out (>5 min for stage 2, >15 min per shot for stage 3) | 2, 3 | Higgsfield queue saturation. Don't restart — check `higgs generate get <id>` later |

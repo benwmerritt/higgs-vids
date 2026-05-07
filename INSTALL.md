@@ -15,8 +15,8 @@ Claude should:
 1. Clone the repo.
 2. Run `bash install.sh`.
 3. Tell you exactly what is missing, if anything.
-4. Ask you to sign in with `higgs auth login` if Higgsfield auth is not ready.
-5. Run `/higgsfield-init` after Claude Code restarts or reloads slash commands.
+4. Ask you to restart or reload Claude Code if slash commands are not visible yet.
+5. Run `/higgsfield-init`. That command handles Higgsfield sign-in after your explicit consent.
 
 ## Manual Setup
 
@@ -42,8 +42,9 @@ Common installs:
 npm install -g @higgsfield/cli
 brew install jq ffmpeg
 python3 -m pip install Pillow
-higgs auth login
 ```
+
+Do not run `higgs auth login` manually unless you want to. `/higgsfield-init` can run it for you after asking.
 
 </details>
 
@@ -57,8 +58,9 @@ sudo apt update
 sudo apt install jq ffmpeg python3 python3-pip
 npm install -g @higgsfield/cli
 python3 -m pip install Pillow
-higgs auth login
 ```
+
+Do not run `higgs auth login` manually unless you want to. `/higgsfield-init` can run it for you after asking.
 
 </details>
 
@@ -78,7 +80,7 @@ After setup:
 /higgsfield-init
 ```
 
-`/higgsfield-init` checks the CLI, auth, workspace, balance, and model access.
+`/higgsfield-init` is the setup and onboarding gate. It checks the CLI, asks whether you have a Higgsfield account, can run `higgs auth login` after your consent, checks workspace and balance, classifies the plan posture, and ends with the brand setup / moodboard demo / shape an idea / just explore menu.
 
 If you want a deeper no-credit workflow check later:
 

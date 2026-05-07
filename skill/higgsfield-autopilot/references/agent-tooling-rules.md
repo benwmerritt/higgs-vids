@@ -8,6 +8,8 @@ Hard rules about which tools the agent uses (and doesn't) when running any patte
 
 Claude has vision. The `Read` tool reads PNG / JPG files and shows them to you visually. **That's how you inspect generated images.** You don't need a browser, screenshot tool, or external viewer.
 
+The only browser exception in this toolkit is sign-in: `higgs auth login` may open the user's browser after explicit user consent. That is auth, not Higgsfield workflow automation or media review.
+
 ```
 Read tool, file_path: runs/<run-dir>/shot-01/image.png
 → image is presented; you can describe / critique / verify
@@ -20,11 +22,11 @@ This is how every "review your output" step in every pattern works.
 | ❌ Forbidden | Why | Use instead |
 |---|---|---|
 | Invoke `mcp__playwright__*` or any Playwright MCP tool | We deleted that whole architecture in v3. The agent reaching back for it is a regression. | `Read` tool on the PNG |
-| Open a browser (Chrome / Safari / etc.) to view images | Defeats the purpose of agentic generation. The user already has the file on disk. | `Read` tool |
+| Open a browser (Chrome / Safari / etc.) to operate Higgsfield or view images | Defeats the CLI-first workflow and bypasses review rules. The user already has generated files on disk. Auth via `higgs auth login` is the only exception. | `higgs` CLI for work, `Read` tool for review |
 | Generate an HTML index / scrollable mockup of slides | The user posts to Instagram from their phone. HTML is irrelevant. | Per-slide PNGs + a markdown `README.md` |
 | Stitch all slides into one tall preview image | Wastes credits and produces nothing the user can post | Each slide is its own file. Review each individually. |
 | ⚠ Compose multiple images into ONE designed deliverable (e.g. a moodboard) | This is NOT banned — but it's only allowed via a real composition script (Pillow / `compose-moodboard.py`). Lazy `convert -append` PNG concatenation is banned. Browser-rendered HTML mockups are banned. | If a pattern's deliverable IS a composition (moodboard, deck, branded layout), use the dedicated composer script with brand mark + typography + designed grid. |
-| Take a screenshot of a webpage / browser | This is a content-generation toolkit, not a scraper | If you need a reference image, ask the user for a path or URL |
+| Take a screenshot of a webpage / browser | This is a content-generation toolkit, not a browser-control workflow | If you need a reference image, ask the user for a path or URL |
 
 ## What you must NEVER do for skill loading
 

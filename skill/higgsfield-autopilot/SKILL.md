@@ -1,6 +1,6 @@
 ---
 name: higgsfield-autopilot
-description: Run a video production studio out of the Higgsfield CLI. Use this skill when the user wants to make video reels, social posts, brand stills, e-commerce listings, or character-driven campaigns via Higgsfield AI. The agent reads a one-line brief, picks a pattern from patterns/, and executes via the higgs CLI — including cost preflight, workspace billing, asset download, ffmpeg assembly, and a delivered bundle. No browser automation, no Playwright, no MCP — just the official higgs CLI.
+description: Run a video production studio out of the Higgsfield CLI. Use this skill when the user wants to make video reels, social posts, brand stills, e-commerce listings, or character-driven campaigns via Higgsfield AI. The agent reads a one-line brief, picks a pattern from patterns/, and executes via the higgs CLI — including cost preflight, workspace billing, asset download, ffmpeg assembly, and a delivered bundle. No browser automation for Higgsfield work, no Playwright, no MCP — just the official higgs CLI.
 ---
 
 # Higgsfield Autopilot
@@ -14,7 +14,7 @@ You are an agent operating inside a video production toolkit. The human says one
 - **`scripts/assemble-video.py`** — one helper for ffmpeg concat with crossfades. Call when assembling final videos from per-shot takes.
 - **Markdown reading** — your patterns, references, and briefs live as `.md` files in this skill.
 
-You do **not** need: Playwright, MCP browser tools, a browser, or any login flow beyond `higgs auth login` (one-time per machine). All of that was the v2 architecture; v3 deletes it.
+You do **not** need: Playwright, MCP browser tools, or browser automation. The only allowed browser opening is `higgs auth login` after explicit user consent, because the CLI uses the browser for sign-in. The v2 browser-control architecture is deleted.
 
 ## Reading order (do this first)
 
@@ -62,8 +62,8 @@ Save the chosen pattern name to `runs/<RUN_ID>/pattern.txt`.
 ### 3. Pre-flight (auth + workspace + balance)
 
 ```bash
-# Auth — should be set from prior `higgs auth login`. If not, stop and tell user.
-higgs --json account status > /tmp/acc.json || { echo "Not authenticated. Run: higgs auth login"; exit 1; }
+# Auth — should be set from prior `/higgsfield-init`. If not, stop and route through onboarding.
+higgs --json account status > /tmp/acc.json || { echo "Not authenticated. Run /higgsfield-init so I can handle sign-in with your consent."; exit 1; }
 PLAN=$(jq -r '.plan' /tmp/acc.json)
 BALANCE=$(jq -r '.credits' /tmp/acc.json)
 
@@ -184,7 +184,7 @@ These rules supersede earlier guidance:
 
 1. **Capability checks over tier-name checks.** Higgsfield's tier names have shifted (Starter/Plus/Ultra vs Basic/Pro/Ultimate/Creator) and will shift again. Read `higgs --json account status` for live state. Use observed behavior (model errors / balance delta / training succeeded) as the signal.
 2. **Actual cost is `account status` delta, not `generate cost`.** CLI is plan-blind (upstream issue #1). `generate cost` returns rack rate regardless of plan; we've measured 99% absorption for image models on Starter. Always log both: preflight (planning bound) AND actual delta (ground truth). See `references/cost-discipline.md`.
-3. **Tooling rules — `references/agent-tooling-rules.md` is non-negotiable.** Image inspection uses the Read tool (Claude has vision). NO Playwright MCP, NO browser opening, NO HTML output, NO stitched preview images, NO unrelated skills outside this bundle (`frontend-design` etc.). Real test failures came from breaking these rules.
+3. **Tooling rules — `references/agent-tooling-rules.md` is non-negotiable.** Image inspection uses the Read tool (Claude has vision). NO Playwright MCP, NO browser automation for Higgsfield work, NO browser previews, NO HTML output, NO stitched preview images, NO unrelated skills outside this bundle (`frontend-design` etc.). `higgs auth login` may open a browser only for user-approved sign-in. Real test failures came from breaking these rules.
 4. **Calibration before batch.** When a pattern produces N outputs, generate ONE first, review it (Read tool, check brand match + AI tells), confirm with user, THEN batch the rest. Don't fire a whole batch and ship blindly.
 5. **Two-pass voice when humanizer skill is installed.** If `~/.agents/skills/superpowers:humanizer` (or equivalent) is present, the copy chain is: AI generates → humanizer (de-AI base layer) → brand voice (per profile) → ship. The humanizer is a foundation against AI tells; the brand voice is the personality on top. See README.md setup notes.
 6. **CLI version pinning.** `@higgsfield/cli` shipped 11 versions in 5 days during early May 2026. Run `higgs version` at session start; flag drift from validated 0.1.28.
@@ -194,7 +194,7 @@ These rules supersede earlier guidance:
 - **Spend without preflight.** Always `higgs generate cost` before `higgs generate create` — even if you suspect the plan absorbs it.
 - **Trust `generate cost` as actual cost.** It's rack rate. Pair with `account status` before/after.
 - **Bake tier names into decisions.** Use capability checks. Tier names will rename.
-- **Open a browser to view images.** Use the Read tool. Claude has vision. (See `references/agent-tooling-rules.md`.)
+- **Open a browser to operate Higgsfield or view images.** Use the `higgs` CLI for Higgsfield work and the Read tool for images. `higgs auth login` is the only browser exception, and only after explicit user consent. (See `references/agent-tooling-rules.md`.)
 - **Invoke Playwright MCP.** That whole architecture was deleted in v3. Reaching back for it is a regression bug.
 - **Load unrelated skills mid-pattern.** No `frontend-design`, no `artifacts-builder`, nothing that steers toward HTML/browser output. If a pattern explicitly references an official Higgsfield product/listing skill doc, use only the named Higgsfield reference and return to this bundle's workflow.
 - **Generate HTML files or stitched preview images.** Output is PNGs the user posts. No web mockups.
@@ -258,7 +258,7 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 - `references/caption-craft.md` — caption shape per platform + AI-tells (em-dash ban, slide-copy cap)
 - `references/hashtag-strategy.md` — per-platform counts + brand hashtag families
 - `references/calendar-defaults.md` — cadence + topic mix per brand type
-- `references/agent-tooling-rules.md` — Read tool for image review, no Playwright/browser/HTML/skill-loading
+- `references/agent-tooling-rules.md` — Read tool for image review, no Playwright/browser automation/HTML/skill-loading; auth browser only via `higgs auth login` with consent
 
 **Prompt-craft (kept):**
 - `references/soul-cinema-prompting.md` — prompt structure (Subject → Scene → Action → Camera → Lighting → Style)
