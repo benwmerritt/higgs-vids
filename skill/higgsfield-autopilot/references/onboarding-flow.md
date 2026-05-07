@@ -68,13 +68,13 @@ After init or any cold-start ping, present a four-way branch. Use these wordings
 
 > **What would be most useful right now?**
 >
-> **(a) Build out brand context** — voice, audience, visual taste, references, constraints. ~10-15 mins, free, no Higgsfield account needed. Future content lands as yours, not generic AI.
+> **(a) Build out brand context.** Voice, audience, visual taste, references, constraints. ~10-15 mins, free, no Higgsfield account needed. Future content lands as yours, not generic AI.
 >
 > **(b) Try a moodboard for ~0 cost** as a real demo of what we could make. Doesn't need a full brand profile, just a vibe.
 >
-> **(c) You've got a specific idea** — tell me about it and I'll work with you to shape it into something worth generating. Two or three shaping questions, then we go.
+> **(c) You've got a specific idea.** Tell me about it and I'll work with you to shape it into something worth generating. Two or three shaping questions, then we go.
 >
-> **(d) Just exploring** — let's chat about what you'd want to use this for. No commitment.
+> **(d) Just exploring.** Let's chat about what you'd want to use this for. No commitment.
 
 Don't push. Whichever branch the user picks, the agent stays curious about *creative direction*, not transaction speed.
 
@@ -86,7 +86,7 @@ Default response shape:
 
 > "I can run that with what you've given me, but with one sentence and no brand context the result will look generic AI. Two paths:
 >
-> 1. We spend ~5 mins on a quick brand sketch first — voice, vibe, an asset or two — and the next generation lands way better.
+> 1. We spend ~5 mins on a quick brand sketch first (voice, vibe, an asset or two) and the next generation lands way better.
 > 2. You say 'just do it' and I'll generate this as a low-context test. Useful for seeing what the tool does; not useful as something you'd post."
 
 If the user says **"just do it"** explicitly: generate. Log the warning in the run dir's `README.md` so future-self knows the output was a cold test, not a final.
@@ -111,7 +111,7 @@ The moodboard pattern is at `patterns/moodboard.md`. It runs cleanly on minimal 
 
 Higgsfield's pricing is genuinely confusing right now. Acknowledge it explicitly so the user knows we're being honest, not evasive:
 
-> "Heads up on pricing: Higgsfield's CLI returns rack-rate cost estimates that are usually 100× higher than what subscribers actually pay (we've measured ~99% absorption for image generation on the cheapest paid plan). We track real spend by reading your balance before and after every run, so the numbers in the cost log are ground truth — but the preflight estimates from the CLI are misleading. Higgsfield is also brand new and pricing is still settling. We don't spend willy-nilly; we make spends worth it."
+> "Heads up on pricing: Higgsfield's CLI returns rack-rate cost estimates that are usually 100× higher than what subscribers actually pay (we've measured ~99% absorption for image generation on the cheapest paid plan). We track real spend by reading your balance before and after every run, so the numbers in the cost log are ground truth. The preflight estimates from the CLI are misleading. Higgsfield is also brand new and pricing is still settling. We don't spend willy-nilly. We make spends worth it."
 
 Repeat the substance of this warning before any spend the user might regret — first paid generation, first video on a small balance, first batch over 50 credits.
 
@@ -119,10 +119,10 @@ Repeat the substance of this warning before any spend the user might regret — 
 
 When a user is on the cheapest paid tier and is considering video, surface this explicitly:
 
-> "On the cheapest paid plan, photos absorb ~99% of rack rate so you can do 50+ generations without thinking about balance. Video has zero absorption — every clip deducts the full rack rate. Three video generations is roughly enough to drain a small balance. Two practical paths:
+> "On the cheapest paid plan, photos absorb ~99% of rack rate so you can do 50+ generations without thinking about balance. Video has zero absorption. Every clip deducts the full rack rate. Three video generations is roughly enough to drain a small balance. Two practical paths:
 >
-> 1. Spend the cheap plan's headroom on photo content for posts — carousels, stills, moodboards. That's where this plan delivers real volume.
-> 2. Test video deliberately — pick the model carefully (`references/model-selection-guide.md`), do one short clip, see what you get, decide whether to upgrade before doing more.
+> 1. Spend the cheap plan's headroom on photo content for posts (carousels, stills, moodboards). That's where this plan delivers real volume.
+> 2. Test video deliberately. Pick the model carefully (`references/model-selection-guide.md`), do one short clip, see what you get, decide whether to upgrade before doing more.
 >
 > The trap is testing video three times, running out of balance, and feeling cheated. Don't fall into it."
 

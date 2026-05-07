@@ -59,4 +59,4 @@ The skill itself is just markdown + two small Python scripts. No Node, no virtua
 
 ## Why no Playwright / MCP / browser automation
 
-We deleted all of that. The Higgsfield CLI (released 2026-05-04) replaces every reason we needed it. The `references/agent-tooling-rules.md` file documents the explicit "don't reach for these tools" rules that came out of real test failures. See `../findings/instagram-reel-DXfKnWhDPlW-workflow.md` for the full v1 → v2 → v3 history.
+We deleted all of that. The Higgsfield CLI (released 2026-05-04) replaces every reason we needed it. The `references/agent-tooling-rules.md` file documents the explicit "don't reach for these tools" rules that came out of real test failures. See `../../findings/instagram-reel-DXfKnWhDPlW-workflow.md` for the full v1 → v2 → v3 history.

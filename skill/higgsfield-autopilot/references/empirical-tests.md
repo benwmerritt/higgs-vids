@@ -2,7 +2,7 @@
 
 The agent runs these to fill in pricing/behavior unknowns when there's slack credits in a paid plan. Each test is **budgeted, scoped, and produces a structured finding** that updates this toolkit's other reference docs.
 
-> **Source:** Section 9 of the Perplexity deep research from 2026-05-06 (`docs/research/You are conducting deep research...md`). Ranked by cost-to-information ratio.
+> **Source:** Section 9 of the Perplexity deep research from 2026-05-06 (`docs/research/higgsfield-pricing-deep-research.md`). Ranked by cost-to-information ratio.
 >
 > **When to run:** When a `/higgsfield-make` run completes well under-budget and there's >50 credits of slack, OR when the user explicitly asks for one.
 

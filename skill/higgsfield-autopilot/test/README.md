@@ -67,7 +67,7 @@ Same test files, same expected behaviour across Claude Code, Gemini, Codex, Open
 | `generate cost` returns null | 1 | Model name wrong → `higgs model list` |
 | Generation times out (>5 min for stage 2, >15 min per shot for stage 3) | 2, 3 | Higgsfield queue saturation. Don't restart — check `higgs generate get <id>` later |
 | Asset URL returns 403/404 | 2, 3 | Signed URL expired → re-fetch with `higgs generate get <id>` |
-| ffmpeg fails on concat | 3 | Codec mismatch — `assemble-video.py` auto-falls-back to re-encode |
+| ffmpeg fails on concat | 3 | Codec mismatch — `../scripts/assemble-video.py` auto-falls-back to re-encode |
 | Wrong workspace charged | 2, 3 | `higgs workspace status` should always be checked at start |
 
 ## Don't

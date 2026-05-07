@@ -25,7 +25,7 @@ This is how every "review your output" step in every pattern works.
 | Open a browser (Chrome / Safari / etc.) to operate Higgsfield or view images | Defeats the CLI-first workflow and bypasses review rules. The user already has generated files on disk. Auth via `higgs auth login` is the only exception. | `higgs` CLI for work, `Read` tool for review |
 | Generate an HTML index / scrollable mockup of slides | The user posts to Instagram from their phone. HTML is irrelevant. | Per-slide PNGs + a markdown `README.md` |
 | Stitch all slides into one tall preview image | Wastes credits and produces nothing the user can post | Each slide is its own file. Review each individually. |
-| ⚠ Compose multiple images into ONE designed deliverable (e.g. a moodboard) | This is NOT banned — but it's only allowed via a real composition script (Pillow / `compose-moodboard.py`). Lazy `convert -append` PNG concatenation is banned. Browser-rendered HTML mockups are banned. | If a pattern's deliverable IS a composition (moodboard, deck, branded layout), use the dedicated composer script with brand mark + typography + designed grid. |
+| ⚠ Compose multiple images into ONE designed deliverable (e.g. a moodboard) | This is NOT banned — but it's only allowed via a real composition script (Pillow / `../scripts/compose-moodboard.py`). Lazy `convert -append` PNG concatenation is banned. Browser-rendered HTML mockups are banned. | If a pattern's deliverable IS a composition (moodboard, deck, branded layout), use the dedicated composer script with brand mark + typography + designed grid. |
 | Take a screenshot of a webpage / browser | This is a content-generation toolkit, not a browser-control workflow | If you need a reference image, ask the user for a path or URL |
 
 ## What you must NEVER do for skill loading
@@ -36,7 +36,7 @@ This is how every "review your output" step in every pattern works.
 | Load `artifacts-builder` mid-pattern | Same reason — pulls toward web artefacts |
 | Load any skill not referenced from this skill's `references/` or `patterns/` files | Each loaded skill changes your behaviour. Stay inside the bundle unless a pattern explicitly names an official Higgsfield reference skill. |
 
-The skills you may use are documented at the top of `SKILL.md`. If a pattern needs additional reference material, it explicitly says "load `references/X.md`" or names the exact official Higgsfield reference skill. That's the only loading allowed mid-run.
+The skills you may use are documented at the top of `../SKILL.md`. If a pattern needs additional reference material, it explicitly says "load `references/<reference-name>.md`" or names the exact official Higgsfield reference skill. That's the only loading allowed mid-run.
 
 ## What you must NEVER write
 

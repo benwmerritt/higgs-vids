@@ -108,6 +108,8 @@ docs/                         ← background research + MCP knowledge artefacts
 findings/                     ← origin story + empirical findings
 ```
 
+`commands/claude/` is the canonical source for Claude Code slash command prompts. `install.sh` symlinks each `.md` into `~/.claude/commands/` so they activate in any Claude Code session — `~/.claude/` itself is local-only and never goes in this repo. Same model for the skill bundle: `skill/higgsfield-autopilot/` is canonical, `~/.claude/skills/higgsfield-autopilot/` is the symlink.
+
 The agent always tells you the deliverable path at the end of a run. Everything important is in `runs/<date>-<brand>-<recipe>/deliverables/`.
 
 ## Cost discipline

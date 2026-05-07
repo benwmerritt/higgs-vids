@@ -73,7 +73,7 @@ A 5-shot reel typically goes: `establish → subject_intro → object_detail →
 - **Same palette across all shots** — pick 3–5 dominant colours from the brief vibe; reuse in every shot's prompt.
 - **Same lighting register** — if the brief implies sunset, every shot says some variant of sunset. No mixing dawn + noon + dusk in one campaign.
 - **Same subject identity language** — if shot 2 says "a woman with a low ponytail in a pale yellow halter dress", shot 4 must use the same description verbatim. Higgsfield has no character-consistency layer at this skill's level (Soul ID is out of scope).
-- **Aspect always 9:16 for v1** — landscape support not yet wired into `03-generate-asset.py`.
+- **Aspect always 9:16 for v1** — landscape support is set per-call via `higgs generate create --aspect_ratio` (see `cli-cheatsheet.md`); v1 reel briefs default to 9:16.
 
 ## Worked example (from the reel)
 

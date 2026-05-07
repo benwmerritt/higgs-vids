@@ -48,9 +48,9 @@ higgs --json account status 2>&1
 **If it fails** (no auth or expired session), ask the user — *don't assume*:
 
 > "Looks like you're not signed in to Higgsfield yet. A few options:
-> 1. **You've got an account already** — say the word and I'll run `higgs auth login` for you. A browser will open, you sign in, we're good to go.
-> 2. **You haven't made one yet** — sign up at https://higgsfield.ai/signup. Once you've got an account, come back and I'll sign you in.
-> 3. **Not ready to commit to an account yet** — totally fine. Brand setup, moodboard ideation, and asset prep all work without a Higgsfield account. We can keep going."
+> 1. **You've got an account already.** Say the word and I'll run `higgs auth login` for you. A browser will open, you sign in, we're good to go.
+> 2. **You haven't made one yet.** Sign up at https://higgsfield.ai/signup. Once you've got an account, come back and I'll sign you in.
+> 3. **Not ready to commit to an account yet.** Totally fine. Brand setup, moodboard ideation, and asset prep all work without a Higgsfield account. We can keep going."
 
 **Branch on their answer:**
 
@@ -112,19 +112,19 @@ Just to confirm the CLI can reach Higgsfield's API.
 
 **Read the pricing caveat once** (per `onboarding-flow.md` § 7):
 
-> "Heads up on pricing: Higgsfield's CLI returns rack-rate cost estimates that are usually 100× higher than what subscribers actually pay. We track real spend by reading your balance before and after every run — those numbers are ground truth, the preflight estimates are misleading. Higgsfield is also brand new and pricing is still settling. We don't spend willy-nilly; we make spends worth it."
+> "Heads up on pricing: Higgsfield's CLI returns rack-rate cost estimates that are usually 100× higher than what subscribers actually pay. We track real spend by reading your balance before and after every run. Those numbers are ground truth; the preflight estimates are misleading. Higgsfield is also brand new and pricing is still settling. We don't spend willy-nilly. We make spends worth it."
 
 Then end with the four-way menu — **NOT** "go run /higgsfield-make":
 
 > "Setup's done. What would be most useful right now?
 >
-> **(a) Build out brand context** — voice, audience, visual taste, references, constraints. ~10-15 mins, free, no Higgsfield account needed. Future content lands as yours, not generic AI.
+> **(a) Build out brand context.** Voice, audience, visual taste, references, constraints. ~10-15 mins, free, no Higgsfield account needed. Future content lands as yours, not generic AI.
 >
 > **(b) Try a moodboard for ~0 cost** as a real demo of what we could make for one of your ideas. Doesn't need a full brand profile, just a vibe.
 >
-> **(c) You've got a specific idea** — tell me about it and I'll work with you to shape it into something worth generating.
+> **(c) You've got a specific idea.** Tell me about it and I'll work with you to shape it into something worth generating.
 >
-> **(d) Just exploring** — let's chat about what you'd want to use this for. No commitment."
+> **(d) Just exploring.** Let's chat about what you'd want to use this for. No commitment."
 
 **Hand off based on their pick:**
 

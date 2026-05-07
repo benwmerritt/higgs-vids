@@ -236,4 +236,4 @@ runs/<RUN_ID>/
 | Video generation hangs (>15min) | Don't kill — log timeout, continue with next shot. The job may still complete; you can recover via `higgs generate get <job_id>` later. |
 | Out of credits mid-run | Stop. Report what completed. Don't auto-top-up — that's a user decision. |
 | Asset URL returns 403/404 | Higgsfield URLs are signed and time-limited. Re-fetch via `higgs generate get <job_id>` to get a fresh URL. |
-| ffmpeg concat fails on codec mismatch | `assemble-video.py` auto-falls back to re-encode. If that also fails, downloaded files are corrupt — re-download. |
+| ffmpeg concat fails on codec mismatch | `../scripts/assemble-video.py` auto-falls back to re-encode. If that also fails, downloaded files are corrupt — re-download. |

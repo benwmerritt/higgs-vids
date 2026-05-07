@@ -20,7 +20,7 @@ Stage 1 + 2 reports exist for recent runs. (Not strictly enforceable; just don't
 
 ### 1. Read instructions
 
-SKILL.md, all references, `patterns/product-reel.md`, `briefs/example-retro-futuristic.md`.
+`../SKILL.md`, all `../references/`, `../patterns/product-reel.md`, `../briefs/example-retro-futuristic.md`.
 
 ### 2. Pre-flight
 

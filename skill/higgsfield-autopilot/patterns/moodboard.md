@@ -334,7 +334,7 @@ Suggested layout in deliverables/README.md.
 - ❌ No "lazy stitched preview" (concatenating PNGs into one tall blob with no design intent)
 - ❌ No video generation (image-only — keep it cheap)
 - ❌ No fire-the-batch-and-pray (calibration mandatory)
-- ✅ **DO** use `compose-moodboard.py` — that's the deliverable. Composed PNG + PDF with brand mark, designed grid, palette strip, and typeset direction copy. The composition IS the product.
+- ✅ **DO** use `../scripts/compose-moodboard.py` — that's the deliverable. Composed PNG + PDF with brand mark, designed grid, palette strip, and typeset direction copy. The composition IS the product.
 
 ## Outputs
 

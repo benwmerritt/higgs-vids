@@ -82,7 +82,7 @@ When `/higgsfield-make --preset ben-carousels "topic"` is invoked:
 3. Refresh source-fetches if stale
 4. Apply preset defaults (`slide_count`, `aspect`, etc.) unless CLI args override
 5. Apply preset overrides (voice / visual tweaks) on top of brand profile
-6. Run pattern (`carousel-post.md`) with the merged context
+6. Run pattern (`../patterns/carousel-post.md`) with the merged context
 7. After successful run, append to "Past runs" table
 8. If user provides feedback, update "Refinement notes"
 

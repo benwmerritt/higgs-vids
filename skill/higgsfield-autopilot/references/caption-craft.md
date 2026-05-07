@@ -106,7 +106,7 @@ The agent enforces the hard caps. If brand voice or topic genuinely needs more s
 
 Every caption draft should pass these checks:
 
-1. **Lexicon match** — does it use the words the brand actually uses (per `brand_profile.md` § Voice § Words / patterns to use)?
+1. **Lexicon match** — does it use the words the brand actually uses (per `brand-profile-format.md` § Voice § Words / patterns to use)?
 2. **Banned words check** — does it avoid the brand's banned-word list?
 3. **Sentence-pattern match** — does it match the brand's typical sentence rhythm (per profile)?
 4. **AI-tells scan** — does it pass the "tells" table above?

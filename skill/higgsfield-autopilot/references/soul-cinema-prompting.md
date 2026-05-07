@@ -29,7 +29,7 @@ For Soul Cinema specifically (decoded from reel frame 17):
 
 ## What to NOT put in Soul Cinema prompts
 
-The Higgsfield UI controls aspect ratio, duration, resolution, model, batch count, boost. **Do not restate these in the prompt** — they're handled by `03-generate-asset.py` flags. Restating them wastes prompt capacity and can create conflicts.
+The Higgsfield UI controls aspect ratio, duration, resolution, model, batch count, boost. **Do not restate these in the prompt** — they're handled by `higgs generate create` flags (`--aspect_ratio`, `--duration`, etc., per `cli-cheatsheet.md`). Restating them wastes prompt capacity and can create conflicts.
 
 Reference: `docs/research/higgs-field-prompting.md` section 1.2.2.
 
@@ -48,4 +48,4 @@ The reel's visible prompt was ~80 words. That's a good ceiling — Soul Cinema d
 
 Per the existing research at `docs/research/generative-media-orchestration.md` section 2.3.2, Soul Cinema generations sit in the mid-tier credit range. Decoded from reel frame 17, the user had "249 free gens left" remaining. Without official per-call cost: **assume ~5–8 credits per Soul Cinema 9:16 generation × 4 batches = ~20–32 credits per shot**. A 5-shot campaign = ~100–160 credits.
 
-These numbers are estimates. The `--dry-run` flag of `03-generate-asset.py` should print the live UI's cost preview where possible.
+These numbers are estimates. Use `higgs --json generate cost <model> --prompt "..."` (free) for live preflight, then compare against `account status` delta for actual spend (per `cost-discipline.md`).

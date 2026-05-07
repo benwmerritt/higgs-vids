@@ -23,7 +23,7 @@ SKILL.md + cli-cheatsheet + cost-discipline.
 
 ### 2. Acquire a shotlist
 
-Reuse the most recent `runs/*/shotlist.json` (sort by mtime). If none exists, generate one for `briefs/example-retro-futuristic.md` per `brief-expansion-rules.md`. Save under `runs/<NEW_RUN_ID>/shotlist.json`.
+Reuse the most recent `runs/*/shotlist.json` (sort by mtime). If none exists, generate one for `../briefs/example-retro-futuristic.md` per `../references/brief-expansion-rules.md`. Save under `runs/<NEW_RUN_ID>/shotlist.json`.
 
 ### 3. Pick shot 1
 

@@ -38,7 +38,7 @@ For any user request to make video/image content:
 Before reading the brief, check what you actually have:
 
 - **No brief, no brand profile, no clear creative intent?** Read `references/onboarding-flow.md` and follow the (a)/(b)/(c)/(d) menu. Don't generate. Capture creative direction first.
-- **Brief is one sentence with no brand context?** Surface the warning in `onboarding-flow.md` § 5: "I can run that, but with one sentence and no brand context the result will look generic AI." Offer the brand-sketch-first path or honor an explicit "just do it" override.
+- **Brief is one sentence with no brand context?** Surface the warning in `references/onboarding-flow.md` § 5: "I can run that, but with one sentence and no brand context the result will look generic AI." Offer the brand-sketch-first path or honor an explicit "just do it" override.
 - **User just ran `/higgsfield-init`?** That command already drove the onboarding flow — pick up wherever they landed (brand-create, moodboard, shape an idea, exploration).
 - **User has a brand profile in `brands/<name>/` AND a brief?** Skip cold-start, continue to step 1.
 
@@ -72,7 +72,7 @@ WS=$(higgs --json workspace status | jq -r '.name // "Private"')
 echo "Plan: $PLAN | Workspace: $WS | Balance: $BALANCE credits"
 ```
 
-If active workspace doesn't match the brief's apparent client, **stop** and ask the user to switch (`higgs workspace set <id>`). Per `cost-discipline.md`.
+If active workspace doesn't match the brief's apparent client, **stop** and ask the user to switch (`higgs workspace set <id>`). Per `references/cost-discipline.md`.
 
 ### 4. Expand brief into shotlist
 
@@ -93,7 +93,7 @@ Save to `runs/<RUN_ID>/shotlist.json`. The pattern uses this as input.
 
 ### 5. Cost preflight (per the four-step ritual)
 
-For each shot in the shotlist, run `higgs generate cost <model> --prompt "..."` for both the still and the video model your pattern uses. Sum to total. Compare to balance. Apply `cost-discipline.md` confirmation thresholds:
+For each shot in the shotlist, run `higgs generate cost <model> --prompt "..."` for both the still and the video model your pattern uses. Sum to total. Compare to balance. Apply `references/cost-discipline.md` confirmation thresholds:
 
 - **<50 credits:** silent proceed
 - **50-200:** report estimate, proceed unless user objects
@@ -106,7 +106,7 @@ For each shot in the shotlist, run `higgs generate cost <model> --prompt "..."` 
 Follow the steps in your chosen `patterns/<name>.md` exactly. Each pattern is a recipe with explicit `higgs` calls. Don't improvise unless a step explicitly says you can.
 
 For each generation:
-- Save `prompt.txt`, `job-id.txt`, `result-url.txt` per `output-management.md`
+- Save `prompt.txt`, `job-id.txt`, `result-url.txt` per `references/output-management.md`
 - Download with `curl -sL "$URL" -o <path>`
 - Symlink the chosen take as `take-best.<ext>`
 
@@ -123,7 +123,7 @@ Build the deliverable bundle at `runs/<RUN_ID>/deliverables/`:
 
 ### 8. Cost ledger + report
 
-Update `runs/<RUN_ID>/cost-log.json` with shape from `cost-discipline.md`:
+Update `runs/<RUN_ID>/cost-log.json` with shape from `references/cost-discipline.md`:
 
 ```json
 {
@@ -215,7 +215,7 @@ These rules supersede earlier guidance:
 - **Save state aggressively.** Every prompt, job ID, result URL goes to disk under `runs/<RUN_ID>/`. Resumption depends on it.
 - **Log every `higgs` invocation to `<run-dir>/commands.log`.** One flat audit file per run capturing timestamp, command, model, job ID, exit code. Format + canonical run-init snippet are in `references/output-management.md` § commands.log. Ben must be able to `grep "GEN" commands.log` to see which model was used for each shot — without this, runs are unauditable.
 - **Run `higgs --json model list` at every pattern's Step 0.** Save to `<run-dir>/models-available.txt` and verify the pattern's required models are still in the list before spending. The CLI is the source of truth; `references/model-selection-guide.md` is a hint. If a model is missing → stop + tell user. If new models appear → note them informationally.
-- **Cite your sources.** When you make a model choice, mention which reference rule drove it ("per `model-selection-guide.md`, defaulting to soul_cinematic for stills") AND that the live model list confirmed availability.
+- **Cite your sources.** When you make a model choice, mention which reference rule drove it ("per `references/model-selection-guide.md`, defaulting to soul_cinematic for stills") AND that the live model list confirmed availability.
 - **Report failures honestly.** "Shot 3 failed (Higgsfield returned error X), continuing with 4 shots" is better than silently dropping a shot.
 - **Use `--json`** when piping `higgs` output into bash. The human-readable tables break parsers.
 
@@ -231,7 +231,7 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 
 ## What this skill does NOT do (yet)
 
-- **Audio generation / voice-over** — out of scope. Higgsfield supports it via some models; v3.1 will add a `pattern-with-audio.md`.
+- **Audio generation / voice-over** — out of scope. Higgsfield supports it via some models; v3.1 will add a `patterns/pattern-with-audio.md` (planned, not yet implemented).
 - **Generic copy-only work** — image/video patterns may generate captions and handoff copy when their recipe asks for it, but standalone copywriting is outside this toolkit.
 - **Cross-run iteration / "make me another like last week's"** — `runs/cost-summary.json` records what happened, but there's no automatic "remix" pattern yet.
 - **Approval workflows** (drafts → revisions → finals) — for now the user is the approval gate. v3.1 may add a `draft/` vs `final/` distinction in deliverables.
@@ -265,7 +265,7 @@ The `higgs` CLI is the same binary regardless of which agent is calling it. Auth
 - `references/brief-expansion-rules.md` — brief → shotlist
 
 **Patterns:**
-- `patterns/` — 8 recipes per use case (all full as of 2026-05-07; `carousel-post.md` and `moodboard.md` are brand-aware)
+- `patterns/` — 8 recipes per use case (all full as of 2026-05-07; `patterns/carousel-post.md` and `patterns/moodboard.md` are brand-aware)
 - `briefs/` — example inputs
 - `test/` — verification stages (1=cost preview only, 2=single shot, 3=full reel)
 - `scripts/assemble-video.py` — ffmpeg concat helper
