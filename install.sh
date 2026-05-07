@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh - install higgs-vids skill + slash commands globally.
+# install.sh - install higgs-vids skill + Claude slash commands globally.
 #
 # Checks the local machine for required tools, then symlinks the skill and
 # slash commands into ~/.claude/ so they work in any Claude Code session.
@@ -125,6 +125,7 @@ mkdir -p "$SKILLS_DIR" "$COMMANDS_DIR"
 # Skill bundle
 SKILL_SRC="$REPO_DIR/skill/higgsfield-autopilot"
 SKILL_LINK="$SKILLS_DIR/higgsfield-autopilot"
+COMMANDS_SRC="$REPO_DIR/commands/claude"
 
 if [ -L "$SKILL_LINK" ]; then
   CURRENT_TARGET="$(readlink "$SKILL_LINK")"
@@ -149,7 +150,7 @@ fi
 LINKED_COMMANDS=()
 SKIPPED_COMMANDS=()
 shopt -s nullglob
-for cmd in "$REPO_DIR"/.claude/commands/*.md; do
+for cmd in "$COMMANDS_SRC"/*.md; do
   name="$(basename "$cmd")"
   link="$COMMANDS_DIR/$name"
 

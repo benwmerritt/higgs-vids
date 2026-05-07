@@ -46,7 +46,7 @@ This is a **video production toolkit** built on top of the official Higgsfield C
 | `/higgsfield-test <1\|2\|3>` | Stage verification |
 | `/higgsfield-budget [path]` | Cost queries |
 
-When the human invokes one of these, the matching file in `.claude/commands/` tells you exactly what to do.
+When the human invokes one of these, the matching file in `commands/claude/` tells you exactly what to do. Claude Code gets those files through symlinks created by `install.sh`; the source lives in this repo.
 
 ## Brand-flow (the personalisation layer)
 
@@ -61,12 +61,12 @@ If the human's request mentions a brand by name (or you see `brands/<name>/` exi
 
 Without a brand profile, generation is generic (acceptable for exploration). With one, output should feel like that brand's content. **The brand profile is not optional once it exists** — refusing to apply it would be a bug.
 
-When the human invokes one of these, the matching file in `.claude/commands/` tells you exactly what to do.
+When the human invokes one of these, the matching file in `commands/claude/` tells you exactly what to do. Claude Code gets those files through symlinks created by `install.sh`; the source lives in this repo.
 
 ## Repo map
 
 ```
-.claude/commands/             ← slash commands (Claude Code projects-skill format)
+commands/claude/              ← slash command source (symlinked into ~/.claude/commands/)
 brands/                       ← real brand profiles (gitignored — private assets)
   <name>/profile.md             voice, audience, spike, visual DNA, constraints
   <name>/assets/                user-provided logos, photos, style refs, samples

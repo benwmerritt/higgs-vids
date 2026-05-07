@@ -211,7 +211,7 @@ These rules supersede earlier guidance:
 ## Cross-agent compatibility
 
 This skill is agent-agnostic — it's plain markdown + bash invocations of a CLI. It works in:
-- **Claude Code** (Claude Desktop's Code tab) — slash commands in `.claude/commands/` activate immediately
+- **Claude Code** (Claude Desktop's Code tab) — `install.sh` symlinks `commands/claude/` into `~/.claude/commands/`
 - **Codex** — read `SKILL.md` as context; invoke via natural language
 - **OpenCode** — same as Codex
 - **Gemini CLI** — same; tell it `Read skill/higgsfield-autopilot/SKILL.md and execute it.`

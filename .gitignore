@@ -30,9 +30,13 @@ downloads/
 # ─── Browser automation leftovers (v1/v2 architecture) ────
 .playwright-mcp/
 
-# ─── Claude Code local config ─────────────────────────────
-.claude/settings.local.json
-.claude/.DS_Store
+# ─── Local agent install/runtime folders ──────────────────
+# Agent-specific folders should be symlink targets only. The canonical
+# source lives in skill/higgsfield-autopilot/ and commands/claude/.
+.claude/
+.codex/
+.gemini/
+.agents/
 
 # ─── OS / editor cruft ────────────────────────────────────
 .DS_Store

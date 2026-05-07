@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# uninstall.sh — remove higgs-vids global symlinks.
+# uninstall.sh - remove higgs-vids global symlinks.
 #
 # The source repo and its files are NOT touched — this only removes the
 # symlinks under ~/.claude/. To fully reinstall later, just run install.sh
@@ -9,6 +9,7 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
+COMMANDS_SRC="$REPO_DIR/commands/claude"
 
 GREEN='\033[32m'
 YELLOW='\033[33m'
@@ -35,7 +36,7 @@ fi
 
 # Slash commands
 shopt -s nullglob
-for cmd in "$REPO_DIR"/.claude/commands/*.md; do
+for cmd in "$COMMANDS_SRC"/*.md; do
   name="$(basename "$cmd")"
   link="$CLAUDE_DIR/commands/$name"
   if [ -L "$link" ]; then

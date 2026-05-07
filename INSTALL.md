@@ -67,7 +67,7 @@ higgs auth login
 - Checks for `git`, `node`, `npm`, `higgs`, `jq`, `ffmpeg`, `python3`, and Pillow.
 - Checks the installed Higgsfield CLI version and auth state.
 - Symlinks `skill/higgsfield-autopilot/` into `~/.claude/skills/`.
-- Symlinks `.claude/commands/*.md` into `~/.claude/commands/`.
+- Symlinks `commands/claude/*.md` into `~/.claude/commands/`.
 - Leaves private data out of git. Brand profiles, presets, and generated runs are ignored.
 
 ## First Verification

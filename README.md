@@ -23,7 +23,7 @@ bash install.sh
 
 </details>
 
-`install.sh` checks local dependencies, reports exact next steps for anything missing, and symlinks the skill and slash commands into `~/.claude/` so they work in **any** Claude Code session. To remove the symlinks (repo stays intact): `bash uninstall.sh`.
+`install.sh` checks local dependencies, reports exact next steps for anything missing, and symlinks the canonical skill plus Claude slash commands into `~/.claude/` so they work in **any** Claude Code session. To remove the symlinks (repo stays intact): `bash uninstall.sh`.
 
 Then open Claude Code and run:
 
@@ -95,6 +95,8 @@ runs/<date>-<brand>-<recipe>/ ← every run, dated and labelled (gitignored)
   shot-NN/                      per-shot prompts, URLs, images, agent reviews
   deliverables/                 ← what you actually post / send to clients
 
+commands/claude/              ← Claude slash command source, symlinked on install
+
 skill/higgsfield-autopilot/   ← the toolkit — agent reads this
   SKILL.md                      operating manual
   patterns/                     recipes
@@ -126,6 +128,8 @@ The skill is plain markdown + bash. Slash commands are Claude Code UX sugar. The
 
 - **Claude Code** — slash commands native
 - **Codex / Gemini CLI / OpenCode** — point the agent at `AGENTS.md` and instruct via natural language
+
+Agent runtime folders such as `.claude/`, `.codex/`, `.gemini/`, and `.agents/` are local-only install targets. They should contain symlinks back to this repo, not duplicate copies of the toolkit.
 
 ## Public Repo Hygiene
 
